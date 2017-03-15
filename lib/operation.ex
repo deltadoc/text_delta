@@ -5,21 +5,56 @@ defmodule TextDelta.Operation do
   In case of text, there are exactly 3 possible operations you might want to perform:
 
   - `insert`: insert a new piece of text or an embedded element
-  - `delete`: delete given number of characters in sequence
   - `retain`: preserve given number of characters in sequence
+  - `delete`: delete given number of characters in sequence
   """
 
-  @doc """
-  Creates a new insert operation.
-
+  @typedoc """
   Insert operations represent an intention to add a text or an embedded element to a document. Text
   additions are represented with binary strings and embedded elements are represented with either
   an integer or an object.
 
   Insert also allows us to attach arbitrary number of attributes to the element being inserted.
   Attributes are provided as a map via optional second argument of the function. This library
-  does not make any assumptions about attributes, so no validity is checked there. Attributes are
-  optional and are ignored if empty map or nil is provided.
+  does not make any assumptions about attributes, so no validity is checked there.
+  """
+  @type insert :: %{insert: String.t | integer | map} | %{insert: String.t | integer | map, attributes: map}
+
+  @typedoc """
+  Retain operations represent an intention to keep a sequence of characters unchanged in the
+  document. It is always a number and it is always positive.
+
+  In addition to indicating preservation of existing text, retain also allows us to change
+  formatting of said text by providing optional attributes as a map via second argument of the
+  function.
+  """
+  @type retain :: %{retain: non_neg_integer} | %{retain: non_neg_integer, attributes: map}
+
+  @typedoc """
+  Delete operations represent an intention to delete a sequence of characters from the document. It
+  is always a number and it is always positive.
+  """
+  @type delete :: %{delete: non_neg_integer}
+
+  @typedoc """
+  An operation. Either insert, retain or delete.
+  """
+  @type t :: insert | retain | delete
+
+  @typedoc """
+  Atom representing type of operation.
+  """
+  @type type :: :insert | :retain | :delete
+
+  @typedoc """
+  The result of comparison operation.
+  """
+  @type comparison :: :eq | :gt | :lt
+
+  @doc """
+  Creates a new insert operation.
+
+  Attributes are optional and are ignored if empty map or nil is provided.
 
   ## Examples
 
@@ -45,6 +80,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.insert("hello", %{})
     %{insert: "hello"}
   """
+  @spec insert(String.t | integer | map, map) :: insert
   def insert(el, attrs \\ %{})
   def insert(el, nil), do: %{insert: el}
   def insert(el, attrs) when map_size(attrs) == 0, do: %{insert: el}
@@ -53,12 +89,7 @@ defmodule TextDelta.Operation do
   @doc """
   Creates a new retain operation.
 
-  Retain operations represent an intention to keep a sequence of characters unchanged in the
-  document. It is always a number and it is always positive.
-
-  In addition to indicating preservation of existing text, retain also allows us to change
-  formatting of said text by providing optional attributes as a map via second argument of the
-  function. Attributes are optional and are ignored if empty map or nil is provided.
+  Attributes are optional and are ignored if empty map or nil is provided.
 
   ## Examples
 
@@ -77,6 +108,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.retain(5, nil)
     %{retain: 5}
   """
+  @spec retain(non_neg_integer, map) :: retain
   def retain(len, attrs \\ %{})
   def retain(len, nil), do: %{retain: len}
   def retain(len, attrs) when map_size(attrs) == 0, do: %{retain: len}
@@ -85,9 +117,6 @@ defmodule TextDelta.Operation do
   @doc """
   Creates a new delete operation.
 
-  Delete operations represent an intention to delete a sequence of characters from the document. It
-  is always a number and it is always positive.
-
   ## Examples
 
   To delete 3 next characters from the text, we can create a following operation:
@@ -95,6 +124,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.delete(3)
     %{delete: 3}
   """
+  @spec delete(non_neg_integer) :: delete
   def delete(len)
   def delete(len), do: %{delete: len}
 
@@ -108,6 +138,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.type(%{retain: 5, attributes: %{bold: true}})
     :retain
   """
+  @spec type(t) :: type
   def type(op)
   def type(%{insert: _}), do: :insert
   def type(%{retain: _}), do: :retain
@@ -147,6 +178,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.length(%{retain: 3, attributes: %{italic: true}})
     3
   """
+  @spec length(t) :: non_neg_integer
   def length(op)
   def length(%{insert: el}) when not is_bitstring(el), do: 1
   def length(%{insert: str}), do: String.length(str)
@@ -167,6 +199,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.compare(%{delete: 3}, %{retain: 3})
     :eq
   """
+  @spec compare(t, t) :: comparison
   def compare(op_a, op_b) do
     len_a = __MODULE__.length(op_a)
     len_b = __MODULE__.length(op_b)
@@ -201,6 +234,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.slice(%{insert: "hello", attributes: %{bold: true}}, 3)
     {%{insert: "hel", attributes: %{bold: true}}, %{insert: "lo", attributes: %{bold: true}}}
   """
+  @spec slice(t, non_neg_integer) :: {t, t}
   def slice(op, idx)
 
   def slice(%{insert: str} = op, idx) do
@@ -254,6 +288,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.compact(%{format: 5, attributes: %{bold: true}}, %{format: 3, attributes: %{italic: true}})
     [%{format: 5, attributes: %{bold: true}}, %{format: 3, attributes: %{italic: true}}]
   """
+  @spec compact(t, t) :: [t]
   def compact(op_a, op_b)
 
   def compact(%{retain: len_a, attributes: attrs_a},
@@ -307,6 +342,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.trimmable?(%{retain: 3})
     true
   """
+  @spec trimmable?(t) :: boolean
   def trimmable?(op) do
     Map.has_key?(op, :retain) and !Map.has_key?(op, :attributes)
   end

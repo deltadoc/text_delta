@@ -28,6 +28,6 @@ defmodule TextDelta.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
   end
 end
