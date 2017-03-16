@@ -2,36 +2,35 @@ defmodule TextDelta.Operation do
   @moduledoc """
   Operations represent a smallest possible change applicable to the document.
 
-  In case of text, there are exactly 3 possible operations you might want to perform:
+  In case of text, there are exactly 3 possible operations we might want to perform:
 
   - `insert`: insert a new piece of text or an embedded element
   - `retain`: preserve given number of characters in sequence
   - `delete`: delete given number of characters in sequence
   """
 
+  alias TextDelta.Attributes
+
   @typedoc """
-  Insert operations represent an intention to add a text or an embedded element to a document. Text
+  Insert operation represents an intention to add a text or an embedded element to a document. Text
   additions are represented with binary strings and embedded elements are represented with either
   an integer or an object.
 
   Insert also allows us to attach arbitrary number of attributes to the element being inserted.
-  Attributes are provided as a map via optional second argument of the function. This library
-  does not make any assumptions about attributes, so no validity is checked there.
   """
-  @type insert :: %{insert: String.t | integer | map} | %{insert: String.t | integer | map, attributes: map}
+  @type insert :: %{insert: element} | %{insert: element, attributes: Attributes.t}
 
   @typedoc """
-  Retain operations represent an intention to keep a sequence of characters unchanged in the
+  Retain operation represents an intention to keep a sequence of characters unchanged in the
   document. It is always a number and it is always positive.
 
   In addition to indicating preservation of existing text, retain also allows us to change
-  formatting of said text by providing optional attributes as a map via second argument of the
-  function.
+  formatting of said text by providing optional attributes.
   """
-  @type retain :: %{retain: non_neg_integer} | %{retain: non_neg_integer, attributes: map}
+  @type retain :: %{retain: non_neg_integer} | %{retain: non_neg_integer, attributes: Attributes.t}
 
   @typedoc """
-  Delete operations represent an intention to delete a sequence of characters from the document. It
+  Delete operation represents an intention to delete a sequence of characters from the document. It
   is always a number and it is always positive.
   """
   @type delete :: %{delete: non_neg_integer}
@@ -50,6 +49,11 @@ defmodule TextDelta.Operation do
   The result of comparison operation.
   """
   @type comparison :: :eq | :gt | :lt
+
+  @typedoc """
+  An insertable into text element. Either a piece of text or embed.
+  """
+  @type element :: String.t | integer | map
 
   @doc """
   Creates a new insert operation.
@@ -80,7 +84,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.insert("hello", %{})
     %{insert: "hello"}
   """
-  @spec insert(String.t | integer | map, map) :: insert
+  @spec insert(element, Attributes.t) :: insert
   def insert(el, attrs \\ %{})
   def insert(el, nil), do: %{insert: el}
   def insert(el, attrs) when map_size(attrs) == 0, do: %{insert: el}
@@ -108,7 +112,7 @@ defmodule TextDelta.Operation do
     iex> TextDelta.Operation.retain(5, nil)
     %{retain: 5}
   """
-  @spec retain(non_neg_integer, map) :: retain
+  @spec retain(non_neg_integer, Attributes.t) :: retain
   def retain(len, attrs \\ %{})
   def retain(len, nil), do: %{retain: len}
   def retain(len, attrs) when map_size(attrs) == 0, do: %{retain: len}
