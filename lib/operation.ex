@@ -7,6 +7,9 @@ defmodule TextDelta.Operation do
   - `insert`: insert a new piece of text or an embedded element
   - `retain`: preserve given number of characters in sequence
   - `delete`: delete given number of characters in sequence
+
+  Insert and retain operations can also have optional attributes attached to them. This is how
+  Delta manages rich text formatting without breaking the Operational Transformation paradigm.
   """
 
   alias TextDelta.Attributes
@@ -25,7 +28,7 @@ defmodule TextDelta.Operation do
   document. It is always a number and it is always positive.
 
   In addition to indicating preservation of existing text, retain also allows us to change
-  formatting of said text by providing optional attributes.
+  formatting of retained text or element by providing optional attributes.
   """
   @type retain :: %{retain: non_neg_integer} | %{retain: non_neg_integer, attributes: Attributes.t}
 
