@@ -1,6 +1,5 @@
 defmodule TextDelta.AttributesTest do
   use ExUnit.Case
-
   doctest TextDelta.Attributes
   alias TextDelta.Attributes
 
