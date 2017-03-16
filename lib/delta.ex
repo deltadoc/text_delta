@@ -20,6 +20,10 @@ defmodule TextDelta.Delta do
   Transformation][ot] - a way to transform one operation in the context of another one. Operational
   Transformation allows us to build optimistic, non-locking collaborative editing tools.
 
+  The format for deltas was deliberately copied from [Quill][quill] - a rich text editor for web.
+  This library aims to be an Elixir counter-part for Quill, enabling us to build matching backends
+  for the editor itself.
+
   ## Examples
 
     iex> alias TextDelta.Delta
@@ -31,10 +35,10 @@ defmodule TextDelta.Delta do
     [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "}, %{insert: "Grey", attributes: %{color: "#ccc"}}]
 
   [ot]: https://en.wikipedia.org/wiki/Operational_transformation
+  [quill]: https://quilljs.com
   """
 
   alias TextDelta.{Operation, Attributes}
-  alias TextDelta.Delta.Transformation
 
   @typedoc """
   Delta is a list, consisting of `t:TextDelta.Operation.retain/0`, `t:TextDelta.Operation.insert/0`,
@@ -107,7 +111,7 @@ defmodule TextDelta.Delta do
   rules:
 
   1. Insert followed by delete is swapped places to ensure that insert always goes first.
-  2. Same operations with with the same attributes are merged together.
+  2. Same operations with the same attributes are merged together.
 
   These two rules ensure that our deltas are always as short as possible and canonical, making it
   much easier to compare, compose and transform them.
