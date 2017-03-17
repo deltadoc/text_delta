@@ -44,6 +44,7 @@ defmodule TextDelta.Delta do
   """
 
   alias TextDelta.{Operation, Attributes}
+  alias TextDelta.Delta.{Composition, Transformation}
 
   @typedoc """
   Delta is a list, consisting of `t:TextDelta.Operation.retain/0`,
@@ -145,6 +146,9 @@ defmodule TextDelta.Delta do
     |> List.last()
     |> compact(op, Enum.slice(delta, 0..-2))
   end
+
+  defdelegate compose(delta_a, delta_b), to: Composition
+  defdelegate transform(delta_a, delta_b, priority), to: Transformation
 
   @doc """
   Trims trailing retains from the end of a given delta.
