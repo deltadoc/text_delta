@@ -1,11 +1,11 @@
 defmodule TextDelta.Attributes do
   @moduledoc """
-  Attributes represent format associated with an insert or retain operations. To simplify things,
-  this library uses simple maps to represent attributes.
+  Attributes represent format associated with an insert or retain operations. To
+  simplify things, this library uses simple maps to represent attributes.
 
-  Same as deltas themselves, attributes are composable, diffable and transformable. This library
-  does not make any assumptions about attribute types, values or composition, so no validation of
-  that kind is provided.
+  Same as deltas themselves, attributes are composable, diffable and
+  transformable. This library does not make any assumptions about attribute
+  types, values or composition, so no validation of that kind is provided.
   """
 
   @typedoc """
@@ -14,18 +14,20 @@ defmodule TextDelta.Attributes do
   @type t :: map
 
   @typedoc """
-  Atom representing transformation priority. Should we prioritise left or right side?
+  Atom representing transformation priority. Should we prioritise left or right
+  side?
   """
   @type priority :: :left | :right
 
   @doc """
   Composes two sets of attributes into one.
 
-  Simplest way to think about composing arguments is two maps being merged (in fact, that's exactly
-  how it is implemented).
+  Simplest way to think about composing arguments is two maps being merged (in
+  fact, that's exactly how it is implemented).
 
-  The only thing that makes it different from standard map merge is a `keep_nils` flag - this flag
-  controls if we want to cleanup all the `null` attributes before returning.
+  The only thing that makes it different from standard map merge is a
+  `keep_nils` flag - this flag controls if we want to cleanup all the `null`
+  attributes before returning.
 
   This function is useful when composing, transforming or diffing deltas.
 
@@ -64,12 +66,14 @@ defmodule TextDelta.Attributes do
   @doc """
   Calculates and returns difference between two sets of attributes.
 
-  Given an initial set of attributes and the final one, this function will generate an attribute
-  set that is when composed with original one would yield the final result.
+  Given an initial set of attributes and the final one, this function will
+  generate an attribute set that is when composed with original one would yield
+  the final result.
 
   ## Examples
 
-    iex> TextDelta.Attributes.diff(%{font: "arial", color: "blue"}, %{color: "red"})
+    iex> TextDelta.Attributes.diff(%{font: "arial", color: "blue"},
+    iex>                           %{color: "red"})
     %{font: nil, color: "red"}
   """
   @spec diff(t, t) :: t
@@ -89,7 +93,8 @@ defmodule TextDelta.Attributes do
 
   ## Examples
 
-    iex> TextDelta.Attributes.transform(%{italic: true}, %{bold: true}, :left)
+    iex> TextDelta.Attributes.transform(%{italic: true},
+    iex>                                %{bold: true}, :left)
     %{bold: true}
   """
   @spec transform(t, t, priority) :: t
