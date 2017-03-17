@@ -3,10 +3,19 @@ defmodule TextDelta.Delta.Transformation do
   The transformation of two concurrent operations such that they satisfy the
   [convergence][tp1] properties of [Operational Transformation](ot1).
 
-  Transformation allows optimistic conflict resolution in concurrent editing. It
-  is achieved by this simple algorithm that takes two deltas and transforms one
-  of them in such way, that applying both deltas to the document always result
-  in consistent state across clients.
+  Transformation allows optimistic conflict resolution in concurrent editing.
+  Given an operation A that occurred at the same time as operation B against the
+  same text state, we can transform the components of operation A such that the
+  state of the text after applying operation A and then operation B is the same
+  as after applying operation B and then the transformation of operation A
+  against operation B:
+
+    S ○ Oa ○ transform(Ob, Oa) = S ○ Ob ○ transform(Oa, Ob)
+
+  Transformation also takes a third `t:TextDelta.Delta.Transformation.priority`
+  argument that indicates which operation came later. This is important when
+  deciding whether it is acceptable to break up insert operations from one
+  operation or the other.
 
   There is a great article writte on Operational Transformation that author of
   this library used. It is called [Understanding and Applying Operational
