@@ -1,34 +1,56 @@
 defmodule TextDelta.Mixfile do
   use Mix.Project
 
+  @version "1.0.0"
+  @github_url "https://github.com/everzet/text_delta"
+
   def project do
     [app: :text_delta,
-     version: "0.1.0",
+     version: @version,
+     description: description(),
+     package: package(),
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     aliases: aliases(),
+     dialyzer: [flags: ~w(-Werror_handling
+                          -Wrace_conditions
+                          -Wunderspecs
+                          -Wunmatched_returns)],
+     homepage_url: @github_url,
+     source_url: @github_url,
+     docs: docs()]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
-  def application do
-    # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger]]
+  def application, do: []
+
+  defp aliases do
+    [lint: ["credo", "dialyzer --halt-exit-status"]]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:my_dep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:my_dep, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
+  defp description do
+    """
+    Elixir counter-part for the Quill.js Delta library. It provides a baseline
+    for Operational Transformation of rich text.
+    """
+  end
+
+  defp package do
+    [maintainers: ["Konstantin Kudryashov <ever.zet@gmail.com>"],
+     licenses: ["MIT"],
+     links: %{"GitHub" => @github_url}]
+  end
+
+  defp docs do
+    [source_ref: "v#{@version}",
+     extras: ["README.md": [filename: "README.md", title: "Readme"],
+              "LICENSE.md": [filename: "LICENSE.md", title: "License"]]]
+  end
+
   defp deps do
-    [{:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-     {:credo, "~> 0.6", only: [:dev], runtime: false}]
+    [{:ex_doc, "~> 0.15", only: [:dev], runtime: false},
+     {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+     {:credo, "~> 0.6", only: [:dev, :test], runtime: false}]
   end
 end
