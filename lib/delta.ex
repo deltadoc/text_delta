@@ -53,6 +53,12 @@ defmodule TextDelta.Delta do
   """
   @type t :: [Operation.t]
 
+  @typedoc """
+  A document represented as delta. Any rich document can be represented as a set
+  of inserts.
+  """
+  @type document :: [Operation.insert]
+
   @doc """
   Creates new delta.
   """

@@ -1,7 +1,7 @@
 defmodule TextDelta.Delta.Transformation do
   @moduledoc """
   The transformation of two concurrent operations such that they satisfy the
-  [convergence][tp1] properties of [Operational Transformation](ot1).
+  convergence properties of Operational Transformation.
 
   Transformation allows optimistic conflict resolution in concurrent editing.
   Given an operation A that occurred at the same time as operation B against the
@@ -17,9 +17,9 @@ defmodule TextDelta.Delta.Transformation do
   deciding whether it is acceptable to break up insert operations from one
   operation or the other.
 
-  There is a great article writte on Operational Transformation that author of
-  this library used. It is called [Understanding and Applying Operational
-  Transformation][ot2].
+  There is a great article writte on [Operational Transformation][ot1] that
+  author of this library used. It is called [Understanding and Applying
+  Operational Transformation][ot2].
 
   [tp1]: https://en.wikipedia.org/wiki/Operational_transformation#Convergence_properties
   [ot1]: https://en.wikipedia.org/wiki/Operational_transformation

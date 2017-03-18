@@ -3,9 +3,9 @@ defmodule TextDelta.Attributes do
   Attributes represent format associated with an insert or retain operations. To
   simplify things, this library uses simple maps to represent attributes.
 
-  Same as deltas themselves, attributes are composable, diffable and
-  transformable. This library does not make any assumptions about attribute
-  types, values or composition, so no validation of that kind is provided.
+  Same as deltas themselves, attributes are composable and transformable. This
+  library does not make any assumptions about attribute types, values or
+  composition, so no validation of that kind is provided.
   """
 
   @typedoc """
@@ -29,7 +29,7 @@ defmodule TextDelta.Attributes do
   `keep_nils` flag - this flag controls if we want to cleanup all the `null`
   attributes before returning.
 
-  This function is useful when composing, transforming or diffing deltas.
+  This function is used when composing deltas.
 
   ## Examples
 
@@ -64,32 +64,9 @@ defmodule TextDelta.Attributes do
   end
 
   @doc """
-  Calculates and returns difference between two sets of attributes.
-
-  Given an initial set of attributes and the final one, this function will
-  generate an attribute set that is when composed with original one would yield
-  the final result.
-
-  ## Examples
-
-    iex> TextDelta.Attributes.diff(%{font: "arial", color: "blue"},
-    iex>                           %{color: "red"})
-    %{font: nil, color: "red"}
-  """
-  @spec diff(t, t) :: t
-  def diff(attrs_a, attrs_b)
-
-  def diff(nil, attrs_b), do: diff(%{}, attrs_b)
-  def diff(attrs_a, nil), do: diff(attrs_a, %{})
-
-  def diff(attrs_a, attrs_b) do
-    %{}
-    |> add_changes(attrs_a, attrs_b)
-    |> add_deletions(attrs_a, attrs_b)
-  end
-
-  @doc """
   Transform given attribute set against another.
+
+  This function is used when transforming deltas.
 
   ## Examples
 
@@ -120,22 +97,6 @@ defmodule TextDelta.Attributes do
     result
     |> Enum.filter(fn {_, v} -> not is_nil(v) end)
     |> Enum.into(%{})
-  end
-
-  defp add_changes(result, from, to) do
-    to
-    |> Enum.filter(fn {key, val} -> Map.get(from, key) != val end)
-    |> Enum.into(%{})
-    |> Map.merge(result)
-  end
-
-  defp add_deletions(result, from, to) do
-    from
-    |> Enum.filter_map(
-         fn {key, _} -> not Map.has_key?(to, key) end,
-         fn {key, _} -> {key, nil} end)
-    |> Enum.into(%{})
-    |> Map.merge(result)
   end
 
   defp remove_duplicates(a, b) do
