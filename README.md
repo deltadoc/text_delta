@@ -1,5 +1,7 @@
 # TextDelta
 
+[![Build Status](https://travis-ci.org/everzet/text_delta.svg?branch=master)](https://travis-ci.org/everzet/text_delta)
+
 Elixir counter-part for the Quill.js [Delta](https://github.com/quilljs/delta)
 library. It provides a baseline for [Operational
 Transformation](https://en.wikipedia.org/wiki/Operational_transformation) of
