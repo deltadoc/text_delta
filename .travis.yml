@@ -1,0 +1,5 @@
+language: elixir
+
+script:
+  - mix test
+  - mix lint
