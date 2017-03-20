@@ -7,6 +7,14 @@ library. It provides a baseline for [Operational
 Transformation](https://en.wikipedia.org/wiki/Operational_transformation) of
 rich text.
 
+Here's Delta pitch from the [Delta.js repository](http://www.codecommit.com/blog/java/understanding-and-applying-operational-transformation):
+
+> Deltas are a simple, yet expressive format that can be used to describe contents and changes. The format is JSON based, and is human readable, yet easily parsible by machines. Deltas can describe any rich text document, includes all text and formatting information, without the ambiguity and complexity of HTML.
+>
+> A Delta is made up of an Array of Operations, which describe changes to a document. They can be an insert, delete or retain. Note operations do not take an index. They always describe the change at the current index. Use retains to "keep" or "skip" certain parts of the document.
+>
+> Don’t be confused by its name Delta—Deltas represents both documents and changes to documents. If you think of Deltas as the instructions from going from one document to another, the way Deltas represent a document is by expressing the instructions starting from an empty document.
+
 More information on original Delta format can be found
 [here](https://quilljs.com/docs/delta/). The best starting point for learning
 Operational Transformation is likely [this
