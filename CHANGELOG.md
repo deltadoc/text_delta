@@ -12,4 +12,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   * Attributes support in `insert` and `retain`
   * Delta composition and transformation with attributes supported
 
+[Unreleased]: https://github.com/everzet/text_delta/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/everzet/text_delta/compare/cdaf5769ba3abb36aa6a6e2431662164a5a30945...v1.0.0
