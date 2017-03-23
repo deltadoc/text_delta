@@ -46,16 +46,17 @@ defmodule TextDelta.Delta.Transformation do
     |> Delta.trim()
   end
 
-  defp do_transform({{_, _}, {nil, _}}, _, result), do: result
+  defp do_transform({{_, _}, {nil, _}}, _, result) do
+    result
+  end
 
   defp do_transform({{nil, _}, {op_b, remainder_b}}, _, result) do
-    [op_b | remainder_b]
-    |> List.foldl(result, &Delta.append(&2, &1))
+    List.foldl([op_b | remainder_b], result, &Delta.append(&2, &1))
   end
 
   defp do_transform({{%{insert: _} = ins_a, remainder_a},
                      {%{insert: _} = ins_b, remainder_b}}, :left, result) do
-    retain = ins_a |> to_retain
+    retain = make_retain(ins_a)
     {remainder_a, [ins_b | remainder_b]}
     |> iterate()
     |> do_transform(:left, Delta.append(result, retain))
@@ -70,7 +71,7 @@ defmodule TextDelta.Delta.Transformation do
 
   defp do_transform({{%{insert: _} = ins, remainder_a},
                      {%{retain: _} = ret, remainder_b}}, priority, result) do
-    retain = ins |> to_retain
+    retain = make_retain(ins)
     {remainder_a, [ret | remainder_b]}
     |> iterate()
     |> do_transform(priority, Delta.append(result, retain))
@@ -78,7 +79,7 @@ defmodule TextDelta.Delta.Transformation do
 
   defp do_transform({{%{insert: _} = ins, remainder_a},
                      {%{delete: _} = del, remainder_b}}, priority, result) do
-    retain = ins |> to_retain
+    retain = make_retain(ins)
     {remainder_a, [del | remainder_b]}
     |> iterate()
     |> do_transform(priority, Delta.append(result, retain))
@@ -114,7 +115,7 @@ defmodule TextDelta.Delta.Transformation do
 
   defp do_transform({{%{retain: _} = ret_a, remainder_a},
                      {%{retain: _} = ret_b, remainder_b}}, priority, result) do
-    retain = ret_a |> to_retain(transform_attributes(ret_a, ret_b, priority))
+    retain = make_retain(ret_a, transform_attributes(ret_a, ret_b, priority))
     {remainder_a, remainder_b}
     |> iterate()
     |> do_transform(priority, Delta.append(result, retain))
@@ -129,7 +130,7 @@ defmodule TextDelta.Delta.Transformation do
 
   defp iterate(stream), do: Iterator.next(stream, :insert)
 
-  defp to_retain(op, attrs \\ %{}) do
+  defp make_retain(op, attrs \\ %{}) do
     op
     |> Operation.length()
     |> Operation.retain(attrs)

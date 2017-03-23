@@ -50,7 +50,7 @@ defmodule TextDelta.Delta.Iterator do
   def next({[head_a | _], [head_b | _]} = deltas, skip_type) do
     comparison = Operation.compare(head_a, head_b)
     skip = Operation.type(head_a) == skip_type
-    deltas |> do_next(comparison, skip)
+    do_next(deltas, comparison, skip)
   end
 
   defp do_next({[head_a | tail_a], [head_b | tail_b]}, :gt, false) do

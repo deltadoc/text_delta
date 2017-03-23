@@ -32,16 +32,16 @@ defmodule TextDelta.Delta.Composition do
     |> Delta.trim()
   end
 
-  defp do_compose({{nil, _}, {nil, _}}, result), do: result
+  defp do_compose({{nil, _}, {nil, _}}, result) do
+    result
+  end
 
   defp do_compose({{nil, _}, {op_b, remainder_b}}, result) do
-    [op_b | remainder_b]
-    |> List.foldl(result, &Delta.append(&2, &1))
+    List.foldl([op_b | remainder_b], result, &Delta.append(&2, &1))
   end
 
   defp do_compose({{op_a, remainder_a}, {nil, _}}, result) do
-    [op_a | remainder_a]
-    |> List.foldl(result, &Delta.append(&2, &1))
+    List.foldl([op_a | remainder_a], result, &Delta.append(&2, &1))
   end
 
   defp do_compose({{%{insert: _} = ins_a, remainder_a},

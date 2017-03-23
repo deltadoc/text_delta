@@ -54,7 +54,7 @@ defmodule TextDelta.Attributes do
   end
 
   def compose(attrs_a, attrs_b, true) do
-    attrs_a |> Map.merge(attrs_b)
+    Map.merge(attrs_a, attrs_b)
   end
 
   def compose(attrs_a, attrs_b, false) do
@@ -90,7 +90,7 @@ defmodule TextDelta.Attributes do
   end
 
   def transform(attrs_a, attrs_b, :left) do
-    attrs_b |> remove_duplicates(attrs_a)
+    remove_duplicates(attrs_b, attrs_a)
   end
 
   defp remove_nils(result) do
@@ -99,9 +99,9 @@ defmodule TextDelta.Attributes do
     |> Enum.into(%{})
   end
 
-  defp remove_duplicates(a, b) do
-    a
-    |> Enum.filter(fn {key, _} -> not Map.has_key?(b, key) end)
+  defp remove_duplicates(attrs_a, attrs_b) do
+    attrs_a
+    |> Enum.filter(fn {key, _} -> not Map.has_key?(attrs_b, key) end)
     |> Enum.into(%{})
   end
 end
