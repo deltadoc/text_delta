@@ -199,6 +199,7 @@ defmodule TextDelta.Delta do
       delta_remainder
       |> List.last()
       |> compact(ins, Enum.slice(delta_remainder, 0..-2))
+
     delta_remainder
     |> Enum.slice(0..-2)
     |> Kernel.++(compacted_insert)
