@@ -26,7 +26,7 @@ defmodule TextDelta.Mixfile do
   def application, do: []
 
   defp aliases do
-    [lint: ["credo", "dialyzer --halt-exit-status"]]
+    [lint: ["credo --strict", "dialyzer --halt-exit-status"]]
   end
 
   defp description do
