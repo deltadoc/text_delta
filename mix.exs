@@ -45,6 +45,7 @@ defmodule TextDelta.Mixfile do
   defp docs do
     [source_ref: "v#{@version}",
      extras: ["README.md": [filename: "README.md", title: "Readme"],
+              "CHANGELOG.md": [filename: "CHANGELOG.md", title: "Changelog"],
               "LICENSE.md": [filename: "LICENSE.md", title: "License"]]]
   end
 
