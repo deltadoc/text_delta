@@ -44,6 +44,13 @@ defmodule TextDelta.AttributesTest do
     test "with removal of inexistent element" do
       assert Attributes.compose(@attributes, %{italic: nil}) == @attributes
     end
+
+    test "string-keyed attributes" do
+      attrs_a = %{"bold" => true, "color" => "red"}
+      attrs_b = %{"italic" => true, "color" => "blue"}
+      composed = %{"bold" => true, "color" => "blue", "italic" => true}
+      assert Attributes.compose(attrs_a, attrs_b) == composed
+    end
   end
 
   describe "transform" do
@@ -68,6 +75,13 @@ defmodule TextDelta.AttributesTest do
 
     test "left to right without priority" do
       assert Attributes.transform(@lft, @rgt, :right) == @rgt
+    end
+
+    test "string-keyed attributes" do
+      attrs_a = %{"bold" => true, "color" => "red", "font" => nil}
+      attrs_b = %{"color" => "blue", "font" => "serif", "italic" => true}
+      assert Attributes.transform(attrs_a, attrs_b, :left) == %{"italic" => true}
+      assert Attributes.transform(attrs_a, attrs_b, :right) == attrs_b
     end
   end
 end
