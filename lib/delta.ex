@@ -146,7 +146,6 @@ defmodule TextDelta.Delta do
   def append(nil, op), do: append([], op)
   def append([], op), do: compact(nil, op, [])
   def append(delta, []), do: delta
-
   def append(delta, op) do
     delta
     |> List.last()
@@ -167,7 +166,6 @@ defmodule TextDelta.Delta do
   @spec trim(t) :: t
   def trim(delta)
   def trim([]), do: []
-
   def trim(delta) do
     last_operation = List.last(delta)
     case Operation.trimmable?(last_operation) do
@@ -180,7 +178,6 @@ defmodule TextDelta.Delta do
     end
   end
 
-  defp compact(last_op, new_op, delta_remainder)
   defp compact(last_op, %{insert: ""}, delta_remainder) do
     delta_remainder ++ List.wrap(last_op)
   end
