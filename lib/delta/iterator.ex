@@ -30,7 +30,7 @@ defmodule TextDelta.Delta.Iterator do
   @type delta_split :: {Operation.t | nil, Delta.t}
 
   @doc """
-  Generate next cycle by iterating over given deltas.
+  Generates next cycle by iterating over given deltas.
   """
   @spec next(deltas, skip_type) :: cycle
   def next(deltas, skip_type \\ nil)

@@ -5,13 +5,17 @@ defmodule TextDelta.Operation do
   In case of text, there are exactly 3 possible operations we might want to
   perform:
 
-  - `insert`: insert a new piece of text or an embedded element
-  - `retain`: preserve given number of characters in sequence
-  - `delete`: delete given number of characters in sequence
+  - `t:TextDelta.Operation.insert/0`: insert a new piece of text or an embedded
+    element
+  - `t:TextDelta.Operation.retain/0`: preserve given number of characters in
+    sequence
+  - `t:TextDelta.Operation.delete/0`: delete given number of characters in
+    sequence
 
-  Insert and retain operations can also have optional attributes attached to
-  them. This is how Delta manages rich text formatting without breaking the
-  [Operational Transformation][ot] paradigm.
+  `insert` and `retain` operations can also have optional
+  `t:TextDelta.Attributes.t/0` attached to them. This is how Delta manages rich
+  text formatting without breaking the [Operational Transformation][ot]
+  paradigm.
 
   [ot]: https://en.wikipedia.org/wiki/Operational_transformation
   """
@@ -19,13 +23,11 @@ defmodule TextDelta.Operation do
   alias TextDelta.Attributes
 
   @typedoc """
-  Insert operation represents an intention to add a text or an
-  embedded element to a document. Text additions are represented with binary
-  strings and embedded elements are represented with either an integer or an
-  object.
+  Insert operation represents an intention to add a text or an embedded element
+  to a document. Text additions are represented with binary strings and embedded
+  elements are represented with either an integer or an object.
 
-  Insert also allows us to attach arbitrary number of attributes to the element
-  being inserted.
+  Insert also allows us to attach attributes to the element being inserted.
   """
   @type insert :: %{insert: element}
                 | %{insert: element, attributes: Attributes.t}
@@ -35,8 +37,7 @@ defmodule TextDelta.Operation do
   unchanged in the document. It is always a number and it is always positive.
 
   In addition to indicating preservation of existing text, retain also allows us
-  to change formatting of retained text or element by providing optional
-  attributes.
+  to change formatting of retained text or element via optional attributes.
   """
   @type retain :: %{retain: non_neg_integer}
                 | %{retain: non_neg_integer, attributes: Attributes.t}
@@ -48,7 +49,7 @@ defmodule TextDelta.Operation do
   @type delete :: %{delete: non_neg_integer}
 
   @typedoc """
-  An operation. Either insert, retain or delete.
+  An operation. Either `insert`, `retain` or `delete`.
   """
   @type t :: insert | retain | delete
 
@@ -63,33 +64,33 @@ defmodule TextDelta.Operation do
   @type comparison :: :eq | :gt | :lt
 
   @typedoc """
-  An insertable into text element. Either a piece of text or embed.
+  An insertable rich text element. Either a piece of text, a number or an embed.
   """
   @type element :: String.t | integer | map
 
   @doc """
   Creates a new insert operation.
 
-  Attributes are optional and are ignored if empty map or nil is provided.
+  Attributes are optional and are ignored if empty map or `nil` is provided.
 
   ## Examples
 
   To indicate that we need to insert a text "hello" into the document, we can
   use following insert:
 
-    iex> TextDelta.Operation.insert("hello")
-    %{insert: "hello"}
+      iex> TextDelta.Operation.insert("hello")
+      %{insert: "hello"}
 
   In addition, we can indicate that "hello" should be inserted with specific
   attributes:
 
-    iex> TextDelta.Operation.insert("hello", %{bold: true, color: "magenta"})
-    %{insert: "hello", attributes: %{bold: true, color: "magenta"}}
+      iex> TextDelta.Operation.insert("hello", %{bold: true, color: "magenta"})
+      %{insert: "hello", attributes: %{bold: true, color: "magenta"}}
 
   We can also insert non-text objects, such as an image:
 
-    iex> TextDelta.Operation.insert(%{img: "me.png"}, %{alt: "My photo"})
-    %{insert: %{img: "me.png"}, attributes: %{alt: "My photo"}}
+      iex> TextDelta.Operation.insert(%{img: "me.png"}, %{alt: "My photo"})
+      %{insert: %{img: "me.png"}, attributes: %{alt: "My photo"}}
   """
   @spec insert(element, Attributes.t) :: insert
   def insert(el, attrs \\ %{})
@@ -100,20 +101,20 @@ defmodule TextDelta.Operation do
   @doc """
   Creates a new retain operation.
 
-  Attributes are optional and are ignored if empty map or nil is provided.
+  Attributes are optional and are ignored if empty map or `nil` is provided.
 
   ## Examples
 
-  To keep 5 next characters inside the text, we can create a following retain:
+  To keep 5 next characters inside the text, we can use the following retain:
 
-    iex> TextDelta.Operation.retain(5)
-    %{retain: 5}
+      iex> TextDelta.Operation.retain(5)
+      %{retain: 5}
 
-  To make those exact 5 characters bold while keeping them, we can use
+  To make those exact 5 characters bold, while keeping them, we can use
   attributes:
 
-    iex> TextDelta.Operation.retain(5, %{bold: true})
-    %{retain: 5, attributes: %{bold: true}}
+      iex> TextDelta.Operation.retain(5, %{bold: true})
+      %{retain: 5, attributes: %{bold: true}}
   """
   @spec retain(non_neg_integer, Attributes.t) :: retain
   def retain(len, attrs \\ %{})
@@ -124,13 +125,13 @@ defmodule TextDelta.Operation do
   @doc """
   Creates a new delete operation.
 
-  ## Examples
+  ## Example
 
   To delete 3 next characters from the text, we can create a following
   operation:
 
-    iex> TextDelta.Operation.delete(3)
-    %{delete: 3}
+      iex> TextDelta.Operation.delete(3)
+      %{delete: 3}
   """
   @spec delete(non_neg_integer) :: delete
   def delete(len)
@@ -139,10 +140,10 @@ defmodule TextDelta.Operation do
   @doc """
   Returns atom representing type of the given operation.
 
-  ## Examples
+  ## Example
 
-    iex> TextDelta.Operation.type(%{retain: 5, attributes: %{bold: true}})
-    :retain
+      iex> TextDelta.Operation.type(%{retain: 5, attributes: %{bold: true}})
+      :retain
   """
   @spec type(t) :: type
   def type(op)
@@ -153,26 +154,26 @@ defmodule TextDelta.Operation do
   @doc """
   Returns length of text affected by a given operation.
 
-  Length for insert operations is calculated by counting the length of text
-  itself being inserted, length for retain and delete operations is a length of
-  sequence itself. Attributes have no effect over the length.
+  Length for `insert` operations is calculated by counting the length of text
+  itself being inserted, length for `retain` or `delete` operations is a length
+  of sequence itself. Attributes have no effect over the length.
 
   ## Examples
 
   For text inserts it is a length of text itself:
 
-    iex> TextDelta.Operation.length(%{insert: "hello!"})
-    6
+      iex> TextDelta.Operation.length(%{insert: "hello!"})
+      6
 
   For embed inserts, however, length is always 1:
 
-    iex> TextDelta.Operation.length(%{insert: 3})
-    1
+      iex> TextDelta.Operation.length(%{insert: 3})
+      1
 
   For retain and deletes, the number itself is the length:
 
-    iex> TextDelta.Operation.length(%{retain: 4})
-    4
+      iex> TextDelta.Operation.length(%{retain: 4})
+      4
   """
   @spec length(t) :: non_neg_integer
   def length(op)
@@ -184,10 +185,10 @@ defmodule TextDelta.Operation do
   @doc """
   Compares the length of two operations.
 
-  ## Examples
+  ## Example
 
-    iex> TextDelta.Operation.compare(%{insert: "hello!"}, %{delete: 3})
-    :gt
+      iex> TextDelta.Operation.compare(%{insert: "hello!"}, %{delete: 3})
+      :gt
   """
   @spec compare(t, t) :: comparison
   def compare(op_a, op_b) do
@@ -203,22 +204,21 @@ defmodule TextDelta.Operation do
   @doc """
   Splits operations into two halves around the given index.
 
-  Text inserts are split via slicing the text itself, retains and deletes are
-  sliced split by subtracting the sequence number. Attributes are preserved
-  during splitting. This is mostly used for normalisation and simplification of
-  iteration over deltas of operations.
+  Text `insert` is split via slicing the text itself, `retain` or `delete` is
+  split by subtracting the sequence number. Attributes are preserved during
+  splitting. This is mostly used for normalisation of deltas during iteration.
 
   ## Examples
 
-  Text inserts are split via slicing the text itself:
+  Text `inserts` are split via slicing the text itself:
 
-    iex> TextDelta.Operation.slice(%{insert: "hello"}, 3)
-    {%{insert: "hel"}, %{insert: "lo"}}
+      iex> TextDelta.Operation.slice(%{insert: "hello"}, 3)
+      {%{insert: "hel"}, %{insert: "lo"}}
 
-  Retains and deletes are split by subtracting the sequence number itself:
+  `retain` and `delete` are split by subtracting the sequence number:
 
-    iex> TextDelta.Operation.slice(%{retain: 5}, 2)
-    {%{retain: 2}, %{retain: 3}}
+      iex> TextDelta.Operation.slice(%{retain: 5}, 2)
+      {%{retain: 2}, %{retain: 3}}
   """
   @spec slice(t, non_neg_integer) :: {t, t}
   def slice(op, idx)
@@ -250,24 +250,24 @@ defmodule TextDelta.Operation do
 
   Compacting works by combining same operations with the same attributes
   together. Easiest way to think about this function is that it produces an
-  exact opposite effect of slice function.
+  exact opposite effect of `TextDelta.Operation.slice/2`.
 
-  Text inserts are compacted by concatenating strings, retain and deletes are
-  compacted by adding their sequence numbers. Only operations with the same
-  attribute set are compacted. This is mostly used for composition,
-  transformation and other delta operations to keep deltas short and canonical.
+  Text `insert` is compacted by concatenating strings, `retain` or `delete` is
+  compacted by adding the sequence numbers. Only operations with the same
+  attribute set are compacted. This is mostly used to keep deltas short and
+  canonical.
 
   ## Examples
 
   Text inserts are compacted into a single insert:
 
-    iex> TextDelta.Operation.compact(%{insert: "hel"}, %{insert: "lo"})
-    [%{insert: "hello"}]
+      iex> TextDelta.Operation.compact(%{insert: "hel"}, %{insert: "lo"})
+      [%{insert: "hello"}]
 
   Retains and deletes are compacted by adding their sequence numbers:
 
-    iex> TextDelta.Operation.compact(%{retain: 2}, %{retain: 3})
-    [%{retain: 5}]
+      iex> TextDelta.Operation.compact(%{retain: 2}, %{retain: 3})
+      [%{retain: 5}]
   """
   @spec compact(t, t) :: [t]
   def compact(op_a, op_b)
@@ -317,13 +317,14 @@ defmodule TextDelta.Operation do
   @doc """
   Checks if given operation is trimmable.
 
-  Technically only retains are trimmable, but the creator of this library didn't
-  feel comfortable exposing that knowledge outside of this module.
+  Technically only `retain` operations are trimmable, but the creator of this
+  library didn't feel comfortable exposing that knowledge outside of this
+  module.
 
-  ## Examples
+  ## Example
 
-    iex> TextDelta.Operation.trimmable?(%{retain: 3})
-    true
+      iex> TextDelta.Operation.trimmable?(%{retain: 3})
+      true
   """
   @spec trimmable?(t) :: boolean
   def trimmable?(op) do

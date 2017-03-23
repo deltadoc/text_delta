@@ -19,10 +19,10 @@ defmodule TextDelta.Delta.Composition do
   @doc """
   Composes two operations into a single equivalent operation.
 
-  ## Examples
+  ## Example
 
-    iex> TextDelta.Delta.compose([%{insert: "Bar"}], [%{insert: "Foo"}])
-    [%{insert: "FooBar"}]
+      iex> TextDelta.Delta.compose([%{insert: "Bar"}], [%{insert: "Foo"}])
+      [%{insert: "FooBar"}]
   """
   @spec compose(Delta.t, Delta.t) :: Delta.t
   def compose(delta_a, delta_b) do

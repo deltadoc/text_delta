@@ -2,42 +2,43 @@ defmodule TextDelta.Delta do
   @moduledoc """
   Delta is a format used to describe documents and changes.
 
-  Delta can describe any rich text changes or a document itself, preserving all
-  the formatting, but without locking us to any particular markup language.
+  Delta can describe any rich text changes or a rich document itself, preserving
+  all the formatting.
 
-  On the ground level, delta is an array of operations (constructed via
-  `TextDelta.Operation`). Operations can be `insert`, `retain` or `delete`.
-  None of the operations contain index, meaning that delta aways describes
-  document or a change staring from the very beginning.
+  At the baseline level, delta is an array of operations (constructed via
+  `TextDelta.Operation`). Operations can be either
+  `t:TextDelta.Operation.insert/0`, `t:TextDelta.Operation.retain/0` or
+  `t:TextDelta.Operation.delete/0`. None of the operations contain index,
+  meaning that delta aways describes document or a change staring from the very
+  beginning.
 
   Delta can describe both changes to and documents themselves. We can think of a
   document as an artefact of all the changes applied to it. This way, newly
-  imported document can be thinked of as simply a sequence of inserts applied to
-  an empty document.
+  imported document can be thinked of as simply a sequence of `insert`s applied
+  to an empty document.
 
-  Deltas are also composable and transformable. This means that a document delta
-  can be composed with another delta for that document, resulting in one, often
-  shorter delta.
+  Deltas are composable. This means that a document delta can be composed with
+  another delta for that document, resulting in a shorter, optimized delta.
 
-  Deltas can also be transformed against each other, enabling what is called
-  [Operational Transformation][ot] - a way to transform one operation in the
-  context of another one. Operational Transformation allows us to build
-  optimistic, non-locking collaborative editing tools.
+  Deltas are also transformable. This attribute of deltas is what enables
+  [Operational Transformation][ot] - a way to transform one operation against
+  the context of another one. Operational Transformation allows us to build
+  optimistic, non-locking collaborative editors.
 
   The format for deltas was deliberately copied from [Quill][quill] - a rich
   text editor for web. This library aims to be an Elixir counter-part for Quill,
-  enabling us to build matching backends for the editor itself.
+  enabling us to build matching backends for the editor.
 
-  ## Examples
+  ## Example
 
-    iex> alias TextDelta.Delta
-    iex> delta = Delta.new() |> Delta.insert("Gandalf", %{bold: true})
-    [%{insert: "Gandalf", attributes: %{bold: true}}]
-    iex> delta = delta |> Delta.insert(" the ")
-    [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "}]
-    iex> delta |> Delta.insert("Grey", %{color: "#ccc"})
-    [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "},
-     %{insert: "Grey", attributes: %{color: "#ccc"}}]
+      iex> alias TextDelta.Delta
+      iex> delta = Delta.new() |> Delta.insert("Gandalf", %{bold: true})
+      [%{insert: "Gandalf", attributes: %{bold: true}}]
+      iex> delta = delta |> Delta.insert(" the ")
+      [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "}]
+      iex> delta |> Delta.insert("Grey", %{color: "#ccc"})
+      [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "},
+       %{insert: "Grey", attributes: %{color: "#ccc"}}]
 
   [ot]: https://en.wikipedia.org/wiki/Operational_transformation
   [quill]: https://quilljs.com
@@ -47,15 +48,15 @@ defmodule TextDelta.Delta do
   alias TextDelta.Delta.{Composition, Transformation}
 
   @typedoc """
-  Delta is a list, consisting of `t:TextDelta.Operation.retain/0`,
-  `t:TextDelta.Operation.insert/0`, and `t:TextDelta.Operation.delete/0`
+  Delta is a list of `t:TextDelta.Operation.retain/0`,
+  `t:TextDelta.Operation.insert/0`, or `t:TextDelta.Operation.delete/0`
   operations.
   """
   @type t :: [Operation.t]
 
   @typedoc """
   A document represented as delta. Any rich document can be represented as a set
-  of inserts.
+  of `t:TextDelta.Operation.insert/0` operations.
   """
   @type document :: [Operation.insert]
 
@@ -66,19 +67,19 @@ defmodule TextDelta.Delta do
   def new, do: []
 
   @doc """
-  Creates and appends new insert operation to a given delta.
+  Creates and appends new insert operation to the delta.
 
-  Same as with `TextDelta.Operation.insert/2` operation factory itself,
-  attributes are optional.
+  Same as with underlying `TextDelta.Operation.insert/2` function, attributes
+  are optional.
 
-  As it is actually used under the hood, all rules of `TextDelta.Delta.append/2`
-  apply.
+  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
+  delta after construction. So all `append` rules apply.
 
-  ## Examples
+  ## Example
 
-    iex> alias TextDelta.Delta
-    iex> Delta.new() |> Delta.insert("hello", %{bold: true})
-    [%{insert: "hello", attributes: %{bold: true}}]
+      iex> alias TextDelta.Delta
+      iex> Delta.new() |> Delta.insert("hello", %{bold: true})
+      [%{insert: "hello", attributes: %{bold: true}}]
   """
   @spec insert(t, Operation.element, Attributes.t) :: t
   def insert(delta, el, attrs \\ %{}) do
@@ -86,19 +87,19 @@ defmodule TextDelta.Delta do
   end
 
   @doc """
-  Creates and appends new retain operation to a given delta.
+  Creates and appends new retain operation to the delta.
 
-  Same as with `TextDelta.Operation.retain/2` operation factory itself,
-  attributes are optional.
+  Same as with underlying `TextDelta.Operation.retain/2` function, attributes
+  are optional.
 
-  As it is actually used under the hood, all rules of `TextDelta.Delta.append/2`
-  apply.
+  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
+  delta after construction. So all `append` rules apply.
 
-  ## Examples
+  ## Example
 
-    iex> alias TextDelta.Delta
-    iex> Delta.new() |> Delta.retain(5, %{italic: true})
-    [%{retain: 5, attributes: %{italic: true}}]
+      iex> alias TextDelta.Delta
+      iex> Delta.new() |> Delta.retain(5, %{italic: true})
+      [%{retain: 5, attributes: %{italic: true}}]
   """
   @spec retain(t, non_neg_integer, Attributes.t) :: t
   def retain(delta, len, attrs \\ %{}) do
@@ -106,16 +107,16 @@ defmodule TextDelta.Delta do
   end
 
   @doc """
-  Creates and appends new delete operation to a given delta.
+  Creates and appends new delete operation to the delta.
 
-  As it is actually used under the hood, all rules of `TextDelta.Delta.append/2`
-  apply.
+  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
+  delta after construction. So all `append` rules apply.
 
-  ## Examples
+  ## Example
 
-    iex> alias TextDelta.Delta
-    iex> Delta.new() |> Delta.delete(3)
-    [%{delete: 3}]
+      iex> alias TextDelta.Delta
+      iex> Delta.new() |> Delta.delete(3)
+      [%{delete: 3}]
   """
   @spec delete(t, non_neg_integer) :: t
   def delete(delta, len) do
@@ -123,23 +124,22 @@ defmodule TextDelta.Delta do
   end
 
   @doc """
-  Appends an operation to a given delta.
+  Appends given operation to the delta.
 
-  Before adding operation to a delta, this function attempts to compact it by
+  Before adding operation to the delta, this function attempts to compact it by
   applying 2 simple rules:
 
-  1. Insert followed by delete is swapped places to ensure that insert always
-     goes first.
-  2. Same operations with the same attributes are merged together.
+  1. Delete followed by insert is swapped to ensure that insert goes first.
+  2. Same operations with the same attributes are merged.
 
   These two rules ensure that our deltas are always as short as possible and
-  canonical, making it much easier to compare, compose and transform them.
+  canonical, making it easier to compare, compose and transform them.
 
-  ## Examples
+  ## Example
 
-    iex> operation = TextDelta.Operation.insert("hello")
-    iex> TextDelta.Delta.new() |> TextDelta.Delta.append(operation)
-    [%{insert: "hello"}]
+      iex> operation = TextDelta.Operation.insert("hello")
+      iex> TextDelta.Delta.new() |> TextDelta.Delta.append(operation)
+      [%{insert: "hello"}]
   """
   @spec append(t, Operation.t) :: t
   def append(delta, op)
@@ -158,10 +158,10 @@ defmodule TextDelta.Delta do
   @doc """
   Trims trailing retains from the end of a given delta.
 
-  ## Examples
+  ## Example
 
-    iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.trim()
-    [%{insert: "hello"}]
+      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.trim()
+      [%{insert: "hello"}]
   """
   @spec trim(t) :: t
   def trim(delta)

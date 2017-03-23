@@ -1,11 +1,12 @@
 defmodule TextDelta.Attributes do
   @moduledoc """
-  Attributes represent format associated with an insert or retain operations. To
-  simplify things, this library uses simple maps to represent attributes.
+  Attributes represent format associated with `t:TextDelta.Operation.insert/0`
+  or `t:TextDelta.Operation.retain/0` operations. This library uses maps to
+  represent attributes.
 
-  Same as deltas themselves, attributes are composable and transformable. This
+  Same as `TextDelta.Delta`, attributes are composable and transformable. This
   library does not make any assumptions about attribute types, values or
-  composition, so no validation of that kind is provided.
+  composition.
   """
 
   @typedoc """
@@ -23,24 +24,24 @@ defmodule TextDelta.Attributes do
   Composes two sets of attributes into one.
 
   Simplest way to think about composing arguments is two maps being merged (in
-  fact, that's exactly how it is implemented).
+  fact, that's exactly how it is implemented at the moment).
 
-  The only thing that makes it different from standard map merge is a
-  `keep_nils` flag - this flag controls if we want to cleanup all the `null`
+  The only thing that makes it different from standard map merge is an optional
+  `keep_nils` flag. This flag controls if we want to cleanup all the `null`
   attributes before returning.
 
-  This function is used when composing deltas.
+  This function is used by `TextDelta.Delta.compose/2`.
 
   ## Examples
 
-    iex> TextDelta.Attributes.compose(%{color: "blue"}, %{italic: true})
-    %{color: "blue", italic: true}
+      iex> TextDelta.Attributes.compose(%{color: "blue"}, %{italic: true})
+      %{color: "blue", italic: true}
 
-    iex> TextDelta.Attributes.compose(%{bold: true}, %{bold: nil}, true)
-    %{bold: nil}
+      iex> TextDelta.Attributes.compose(%{bold: true}, %{bold: nil}, true)
+      %{bold: nil}
 
-    iex> TextDelta.Attributes.compose(%{bold: true}, %{bold: nil}, false)
-    %{}
+      iex> TextDelta.Attributes.compose(%{bold: true}, %{bold: nil}, false)
+      %{}
   """
   @spec compose(t, t, boolean) :: t
   def compose(attrs_a, attrs_b, keep_nils \\ false)
@@ -64,15 +65,15 @@ defmodule TextDelta.Attributes do
   end
 
   @doc """
-  Transform given attribute set against another.
+  Transforms given attribute set against another.
 
-  This function is used when transforming deltas.
+  This function is used by `TextDelta.Delta.transform/3`.
 
-  ## Examples
+  ## Example
 
-    iex> TextDelta.Attributes.transform(%{italic: true},
-    iex>                                %{bold: true}, :left)
-    %{bold: true}
+      iex> TextDelta.Attributes.transform(%{italic: true},
+      iex>                                %{bold: true}, :left)
+      %{bold: true}
   """
   @spec transform(t, t, priority) :: t
   def transform(attrs_a, attrs_b, priority)
