@@ -71,6 +71,19 @@ defmodule TextDelta.Delta.CompositionTest do
       assert Delta.compose(a, b) == composition
     end
 
+    test "delete with larger retain" do
+      a =
+        Delta.new()
+        |> Delta.delete(1)
+      b =
+        Delta.new()
+        |> Delta.retain(2)
+      composition =
+        Delta.new()
+        |> Delta.delete(1)
+      assert Delta.compose(a, b) == composition
+    end
+
     test "delete with delete" do
       a =
         Delta.new()

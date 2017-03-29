@@ -75,7 +75,7 @@ defmodule TextDelta.Delta.Composition do
 
   defp do_compose({{%{delete: _} = del, remainder_a},
                    {%{retain: _} = ret, remainder_b}}, result) do
-    {remainder_a, [ret, remainder_b]}
+    {remainder_a, [ret | remainder_b]}
     |> iterate()
     |> do_compose(Delta.append(result, del))
   end
