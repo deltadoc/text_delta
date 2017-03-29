@@ -1,7 +1,7 @@
 defmodule TextDelta.Mixfile do
   use Mix.Project
 
-  @version "1.0.1"
+  @version "1.0.2"
   @github_url "https://github.com/everzet/text_delta"
 
   def project do
