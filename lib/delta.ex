@@ -144,12 +144,13 @@ defmodule TextDelta.Delta do
   @spec append(t, Operation.t) :: t
   def append(delta, op)
   def append(nil, op), do: append([], op)
-  def append([], op), do: compact(nil, op, [])
+  def append([], op), do: compact([], op)
   def append(delta, []), do: delta
   def append(delta, op) do
     delta
-    |> List.last()
-    |> compact(op, Enum.slice(delta, 0..-2))
+    |> Enum.reverse()
+    |> compact(op)
+    |> Enum.reverse()
   end
 
   defdelegate compose(delta_a, delta_b), to: Composition
@@ -178,35 +179,38 @@ defmodule TextDelta.Delta do
     end
   end
 
-  defp compact(last_op, %{insert: ""}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  defp compact(delta, %{insert: ""}) do
+    delta
   end
 
-  defp compact(last_op, %{retain: 0}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  defp compact(delta, %{retain: 0}) do
+    delta
   end
 
-  defp compact(last_op, %{delete: 0}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  defp compact(delta, %{delete: 0}) do
+    delta
   end
 
-  defp compact(nil, new_op, _) do
-    List.wrap(new_op)
+  defp compact(delta, []) do
+    delta
   end
 
-  defp compact(%{delete: _} = del, %{insert: _} = ins, delta_remainder) do
-    compacted_insert =
-      delta_remainder
-      |> List.last()
-      |> compact(ins, Enum.slice(delta_remainder, 0..-2))
-
-    delta_remainder
-    |> Enum.slice(0..-2)
-    |> Kernel.++(compacted_insert)
-    |> Kernel.++([del])
+  defp compact(delta, nil) do
+    delta
   end
 
-  defp compact(last_op, new_op, delta_remainder) do
-    delta_remainder ++ Operation.compact(last_op, new_op)
+  defp compact([], new_op) do
+    [new_op]
+  end
+
+  defp compact([%{delete: _} = del | delta_remainder], %{insert: _} = ins) do
+    compact(compact(delta_remainder, ins), del)
+  end
+
+  defp compact([last_op | delta_remainder], new_op) do
+    last_op
+    |> Operation.compact(new_op)
+    |> Enum.reverse()
+    |> Kernel.++(delta_remainder)
   end
 end

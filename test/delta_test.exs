@@ -144,6 +144,22 @@ defmodule TextDelta.DeltaTest do
         %{retain: 2, attributes: %{color: "blue"}}
       ]
     end
+
+    test "an edge-case with potential duplication of inserts" do
+      delta =
+        Delta.new()
+        |> Delta.insert("collaborative")
+        |> Delta.retain(1)
+        |> Delta.delete(1)
+        |> Delta.insert("a")
+
+      assert delta == [
+        %{insert: "collaborative"},
+        %{retain: 1},
+        %{insert: "a"},
+        %{delete: 1}
+      ]
+    end
   end
 
   describe "trim" do
