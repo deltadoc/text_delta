@@ -1,5 +1,5 @@
 defmodule TextDelta.Delta.TransformationTest do
-  use ExUnit.Case
+  use ExUnit.PropertyCase
 
   alias TextDelta.Delta
 
@@ -230,6 +230,31 @@ defmodule TextDelta.Delta.TransformationTest do
         Delta.new()
       assert Delta.transform(first, second, :right) == transformed_second
       assert Delta.transform(second, first, :right) == transformed_first
+    end
+  end
+
+  property "composing delta with its prime results in consistent state" do
+    forall {doc, {priority_a, priority_b}} <- {document(), priorities()} do
+      forall {ops_a, ops_b} <- {operations(), operations()} do
+        a = delta_from_operations(ops_a)
+        b = delta_from_operations(ops_b)
+
+        implies Enum.max([delta_len(a), delta_len(b)]) <= doc_len(doc) do
+          a_prime = Delta.transform(b, a, priority_a)
+          b_prime = Delta.transform(a, b, priority_b)
+
+          doc_a =
+            doc
+            |> Delta.compose(a)
+            |> Delta.compose(b_prime)
+          doc_b =
+            doc
+            |> Delta.compose(b)
+            |> Delta.compose(a_prime)
+
+          ensure doc_a == doc_b
+        end
+      end
     end
   end
 end
