@@ -49,18 +49,19 @@ defmodule ExUnit.PropertyCase do
       end
 
       defp attributes do
-        opts =
-          [{string(), string()},
-           {string(), bool()},
-           {:font, string()},
-           {:bold, bool()},
-           {:italic, bool()}]
-          |> oneof()
-          |> list()
-          |> non_empty()
-        let attrs <- opts do
+        let attrs <- non_empty(list(attribute())) do
           Enum.into(attrs, %{})
         end
+      end
+
+      defp attribute do
+        oneof [
+          {string(), string()},
+          {string(), bool()},
+          {:font, string()},
+          {:bold, bool()},
+          {:italic, bool()}
+        ]
       end
 
       defp text do
