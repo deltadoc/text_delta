@@ -8,78 +8,77 @@ defmodule ExUnit.PropertyCase do
       alias TextDelta.{Delta, Operation}
 
       defp document do
-        Delta.insert(Delta.new(), text())
+        let text <- text() do
+          Delta.insert(Delta.new(), text)
+        end
+      end
+
+      defp delta do
+        let_shrink ops <- list(operation()) do
+          Enum.reduce(ops, Delta.new(), &Delta.append(&2, &1))
+        end
+      end
+
+      defp document_delta(doc) do
+        such_that delta <- delta() do
+          doc_len =
+            doc
+            |> Enum.map(&Operation.length/1)
+            |> Enum.sum()
+          delta_len =
+            delta
+            |> Enum.filter(fn op -> Operation.type(op) !== :insert end)
+            |> Enum.map(&Operation.length/1)
+            |> Enum.sum()
+          doc_len >= delta_len
+        end
       end
 
       defp priorities do
         oneof [{:left, :right}, {:right, :left}]
       end
 
-      defp operations do
-        list(operation())
-      end
-
       defp operation do
         oneof [
           Operation.insert(string()),
           Operation.insert(string(), attributes()),
-          Operation.retain(short_length()),
-          Operation.retain(short_length(), attributes()),
-          Operation.delete(short_length())
+          Operation.retain(choose(1, 50)),
+          Operation.retain(choose(1, 50), attributes()),
+          Operation.delete(choose(1, 50))
         ]
-      end
-
-      defp text(options \\ 5) do
-        texts =
-          1..200
-          |> Enum.take_random(options)
-          |> Enum.map(&random_string/1)
-        oneof texts
-      end
-
-      defp string(options \\ 10) do
-        texts =
-          1..50
-          |> Enum.take_random(options)
-          |> Enum.map(&random_string/1)
-        oneof texts
       end
 
       defp attributes do
-        oneof [
-          %{string() => oneof([string(), bool()])},
-          %{bold: bool()},
-          %{italic: bool()},
-          %{bold: bool(), italic: bool()},
-        ]
+        opts =
+          [{string(), string()},
+           {string(), bool()},
+           {:font, string()},
+           {:bold, bool()},
+           {:italic, bool()}]
+          |> oneof()
+          |> list()
+          |> non_empty()
+        let attrs <- opts do
+          Enum.into(attrs, %{})
+        end
       end
 
-      defp short_length do
-        choose(1, 50)
+      defp text do
+        let_shrink length <- choose(1, 500) do
+          length
+          |> :crypto.strong_rand_bytes()
+          |> Base.url_encode64()
+          |> String.slice(0, length)
+        end
       end
 
-      defp random_string(length) do
-        length
-        |> :crypto.strong_rand_bytes()
-        |> Base.url_encode64()
-        |> String.slice(0, length)
-      end
-
-      defp delta_from_operations(ops) do
-        Enum.reduce(ops, Delta.new(), &Delta.append(&2, &1))
-      end
-
-      defp doc_len(doc) do
-        doc
-        |> Enum.map(&Operation.length/1)
-        |> Enum.sum()
-      end
-
-      defp delta_len(doc) do
-        doc
-        |> Enum.filter(fn op -> Operation.type(op) !== :insert end)
-        |> Enum.map(&Operation.length/1)
-        |> Enum.sum()
+      defp string do
+        let_shrink length <- choose(1, 50) do
+          length
+          |> :crypto.strong_rand_bytes()
+          |> Base.url_encode64()
+          |> String.slice(0, length)
+        end
       end
     end
   end

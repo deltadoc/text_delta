@@ -235,25 +235,20 @@ defmodule TextDelta.Delta.TransformationTest do
 
   property "composing delta with its prime results in consistent state" do
     forall {doc, {priority_a, priority_b}} <- {document(), priorities()} do
-      forall {ops_a, ops_b} <- {operations(), operations()} do
-        a = delta_from_operations(ops_a)
-        b = delta_from_operations(ops_b)
+      forall {delta_a, delta_b} <- {document_delta(doc), document_delta(doc)} do
+        a_prime = Delta.transform(delta_b, delta_a, priority_a)
+        b_prime = Delta.transform(delta_a, delta_b, priority_b)
 
-        implies Enum.max([delta_len(a), delta_len(b)]) <= doc_len(doc) do
-          a_prime = Delta.transform(b, a, priority_a)
-          b_prime = Delta.transform(a, b, priority_b)
+        doc_a =
+          doc
+          |> Delta.compose(delta_a)
+          |> Delta.compose(b_prime)
+        doc_b =
+          doc
+          |> Delta.compose(delta_b)
+          |> Delta.compose(a_prime)
 
-          doc_a =
-            doc
-            |> Delta.compose(a)
-            |> Delta.compose(b_prime)
-          doc_b =
-            doc
-            |> Delta.compose(b)
-            |> Delta.compose(a_prime)
-
-          ensure doc_a == doc_b
-        end
+        ensure doc_a == doc_b
       end
     end
   end
