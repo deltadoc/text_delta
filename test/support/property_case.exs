@@ -39,17 +39,29 @@ defmodule ExUnit.PropertyCase do
       end
 
       defp operation do
-        oneof [
-          Operation.insert(string()),
-          Operation.insert(string(), attributes()),
-          Operation.retain(choose(1, 50)),
-          Operation.retain(choose(1, 50), attributes()),
-          Operation.delete(choose(1, 50))
-        ]
+        oneof [insert(), retain(), delete()]
+      end
+
+      defp insert do
+        let [str <- string(), attrs <- attributes()] do
+          Operation.insert(str, attrs)
+        end
+      end
+
+      defp retain do
+        let [len <- choose(1, 50), attrs <- attributes()] do
+          Operation.retain(len, attrs)
+        end
+      end
+
+      defp delete do
+        let len <- choose(1, 50) do
+          Operation.delete(len)
+        end
       end
 
       defp attributes do
-        let attrs <- non_empty(list(attribute())) do
+        let attrs <- list(attribute()) do
           Enum.into(attrs, %{})
         end
       end
