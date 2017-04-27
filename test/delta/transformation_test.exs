@@ -234,8 +234,10 @@ defmodule TextDelta.Delta.TransformationTest do
   end
 
   property "composing delta with its prime results in consistent state" do
-    forall {doc, {priority_a, priority_b}} <- {document(), priorities()} do
+    forall {doc, priority_a} <- {document(), oneof([:left, :right])} do
       forall {delta_a, delta_b} <- {document_delta(doc), document_delta(doc)} do
+        priority_b = if priority_a == :left, do: :right, else: :left
+
         a_prime = Delta.transform(delta_b, delta_a, priority_a)
         b_prime = Delta.transform(delta_a, delta_b, priority_b)
 

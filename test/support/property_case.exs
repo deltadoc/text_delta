@@ -34,10 +34,6 @@ defmodule ExUnit.PropertyCase do
         end
       end
 
-      defp priorities do
-        oneof [{:left, :right}, {:right, :left}]
-      end
-
       defp operation do
         oneof [insert(), retain(), delete()]
       end
