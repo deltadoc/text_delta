@@ -184,6 +184,30 @@ defmodule TextDelta.Delta do
     end
   end
 
+  @doc """
+  Calculates the length of a given delta.
+
+  Length of delta is a sum of its operations length.
+
+  ## Example
+
+      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.length()
+      10
+
+  The function also allows to select which types of operations we include in the
+  summary with optional second argument:
+
+      iex> [%{insert: "hi"}, %{retain: 5}] |> TextDelta.Delta.length([:retain])
+      5
+  """
+  @spec length(t, [Operation.type]) :: non_neg_integer
+  def length(delta, included_ops \\ [:insert, :retain, :delete]) do
+    delta
+    |> Enum.filter(&(Enum.member?(included_ops, Operation.type(&1))))
+    |> Enum.map(&Operation.length/1)
+    |> Enum.sum()
+  end
+
   defp compact(delta, %{insert: ""}) do
     delta
   end
