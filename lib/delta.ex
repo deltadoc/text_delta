@@ -62,9 +62,14 @@ defmodule TextDelta.Delta do
 
   @doc """
   Creates new delta.
+
+  You can optionally pass list of operations. All of the operations will be
+  properly appended and compacted.
   """
-  @spec new :: t
-  def new, do: []
+  @spec new([Operation.t]) :: t
+  def new(ops \\ [])
+  def new([]), do: []
+  def new(ops), do: Enum.reduce(ops, new(), &append(&2, &1))
 
   @doc """
   Creates and appends new insert operation to the delta.
