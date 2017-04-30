@@ -1,5 +1,7 @@
 defmodule TextDelta.Delta.TransformationTest do
-  use ExUnit.PropertyCase
+  use ExUnit.Case
+  use EQC.ExUnit
+  import TextDelta.Generators
 
   alias TextDelta.Delta
 
@@ -233,22 +235,20 @@ defmodule TextDelta.Delta.TransformationTest do
     end
   end
 
-  property "composing delta with its prime results in consistent state" do
-    forall {doc, priority_a} <- {document(), oneof([:left, :right])} do
+  property "document states converge via opposite-priority transformations" do
+    forall {doc, side} <- {document(), priority_side()} do
       forall {delta_a, delta_b} <- {document_delta(doc), document_delta(doc)} do
-        priority_b = if priority_a == :left, do: :right, else: :left
-
-        a_prime = Delta.transform(delta_b, delta_a, priority_a)
-        b_prime = Delta.transform(delta_a, delta_b, priority_b)
+        delta_a_prime = Delta.transform(delta_b, delta_a, side)
+        delta_b_prime = Delta.transform(delta_a, delta_b, opposite(side))
 
         doc_a =
           doc
           |> Delta.compose(delta_a)
-          |> Delta.compose(b_prime)
+          |> Delta.compose(delta_b_prime)
         doc_b =
           doc
           |> Delta.compose(delta_b)
-          |> Delta.compose(a_prime)
+          |> Delta.compose(delta_a_prime)
 
         ensure doc_a == doc_b
       end
