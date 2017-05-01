@@ -62,9 +62,14 @@ defmodule TextDelta.Delta do
 
   @doc """
   Creates new delta.
+
+  You can optionally pass list of operations. All of the operations will be
+  properly appended and compacted.
   """
-  @spec new :: t
-  def new, do: []
+  @spec new([Operation.t]) :: t
+  def new(ops \\ [])
+  def new([]), do: []
+  def new(ops), do: Enum.reduce(ops, new(), &append(&2, &1))
 
   @doc """
   Creates and appends new insert operation to the delta.
@@ -144,12 +149,13 @@ defmodule TextDelta.Delta do
   @spec append(t, Operation.t) :: t
   def append(delta, op)
   def append(nil, op), do: append([], op)
-  def append([], op), do: compact(nil, op, [])
+  def append([], op), do: compact([], op)
   def append(delta, []), do: delta
   def append(delta, op) do
     delta
-    |> List.last()
-    |> compact(op, Enum.slice(delta, 0..-2))
+    |> Enum.reverse()
+    |> compact(op)
+    |> Enum.reverse()
   end
 
   defdelegate compose(delta_a, delta_b), to: Composition
@@ -178,35 +184,62 @@ defmodule TextDelta.Delta do
     end
   end
 
-  defp compact(last_op, %{insert: ""}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  @doc """
+  Calculates the length of a given delta.
+
+  Length of delta is a sum of its operations length.
+
+  ## Example
+
+      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.length()
+      10
+
+  The function also allows to select which types of operations we include in the
+  summary with optional second argument:
+
+      iex> [%{insert: "hi"}, %{retain: 5}] |> TextDelta.Delta.length([:retain])
+      5
+  """
+  @spec length(t, [Operation.type]) :: non_neg_integer
+  def length(delta, included_ops \\ [:insert, :retain, :delete]) do
+    delta
+    |> Enum.filter(&(Enum.member?(included_ops, Operation.type(&1))))
+    |> Enum.map(&Operation.length/1)
+    |> Enum.sum()
   end
 
-  defp compact(last_op, %{retain: 0}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  defp compact(delta, %{insert: ""}) do
+    delta
   end
 
-  defp compact(last_op, %{delete: 0}, delta_remainder) do
-    delta_remainder ++ List.wrap(last_op)
+  defp compact(delta, %{retain: 0}) do
+    delta
   end
 
-  defp compact(nil, new_op, _) do
-    List.wrap(new_op)
+  defp compact(delta, %{delete: 0}) do
+    delta
   end
 
-  defp compact(%{delete: _} = del, %{insert: _} = ins, delta_remainder) do
-    compacted_insert =
-      delta_remainder
-      |> List.last()
-      |> compact(ins, Enum.slice(delta_remainder, 0..-2))
-
-    delta_remainder
-    |> Enum.slice(0..-2)
-    |> Kernel.++(compacted_insert)
-    |> Kernel.++([del])
+  defp compact(delta, []) do
+    delta
   end
 
-  defp compact(last_op, new_op, delta_remainder) do
-    delta_remainder ++ Operation.compact(last_op, new_op)
+  defp compact(delta, nil) do
+    delta
+  end
+
+  defp compact([], new_op) do
+    [new_op]
+  end
+
+  defp compact([%{delete: _} = del | delta_remainder], %{insert: _} = ins) do
+    compact(compact(delta_remainder, ins), del)
+  end
+
+  defp compact([last_op | delta_remainder], new_op) do
+    last_op
+    |> Operation.compact(new_op)
+    |> Enum.reverse()
+    |> Kernel.++(delta_remainder)
   end
 end

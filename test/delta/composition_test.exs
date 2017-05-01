@@ -1,7 +1,27 @@
 defmodule TextDelta.Delta.CompositionTest do
   use ExUnit.Case
+  use EQC.ExUnit
+  import TextDelta.Generators
+
   alias TextDelta.Delta
   doctest TextDelta.Delta.Composition
+
+  property "(a + b) + c = a + (b + c)" do
+    forall doc <- document() do
+      forall delta_a <- document_delta(doc) do
+        doc_a = Delta.compose(doc, delta_a)
+
+        forall delta_b <- document_delta(doc_a) do
+          doc_b = Delta.compose(doc_a, delta_b)
+
+          delta_c = Delta.compose(delta_a, delta_b)
+          doc_c = Delta.compose(doc, delta_c)
+
+          ensure doc_b == doc_c
+        end
+      end
+    end
+  end
 
   describe "compose" do
     test "insert with insert" do
@@ -261,6 +281,21 @@ defmodule TextDelta.Delta.CompositionTest do
         Delta.new()
         |> Delta.insert("T", %{color: "red", bold: true})
         |> Delta.insert("t", %{bold: true})
+      assert Delta.compose(a, b) == composition
+    end
+
+    test "delete+retain with delete" do
+      a =
+        Delta.new()
+        |> Delta.delete(1)
+        |> Delta.retain(1, %{style: "P"})
+      b =
+        Delta.new()
+        |> Delta.delete(1)
+      composition =
+        Delta.new()
+        |> Delta.delete(2)
+
       assert Delta.compose(a, b) == composition
     end
   end

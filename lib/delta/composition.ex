@@ -80,12 +80,11 @@ defmodule TextDelta.Delta.Composition do
     |> do_compose(Delta.append(result, del))
   end
 
-  defp do_compose({{%{delete: len_a}, remainder_a},
-                   {%{delete: len_b}, remainder_b}}, result) do
-    delete = Operation.delete(len_a + len_b)
-    {remainder_a, remainder_b}
+  defp do_compose({{%{delete: _} = del_a, remainder_a},
+                   {%{delete: _} = del_b, remainder_b}}, result) do
+    {remainder_a, [del_b | remainder_b]}
     |> iterate()
-    |> do_compose(Delta.append(result, delete))
+    |> do_compose(Delta.append(result, del_a))
   end
 
   defp do_compose({{%{retain: _} = ret, remainder_a},

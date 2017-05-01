@@ -1,7 +1,29 @@
 defmodule TextDelta.Delta.TransformationTest do
   use ExUnit.Case
+  use EQC.ExUnit
+  import TextDelta.Generators
 
   alias TextDelta.Delta
+
+  property "document states converge via opposite-priority transformations" do
+    forall {doc, side} <- {document(), priority_side()} do
+      forall {delta_a, delta_b} <- {document_delta(doc), document_delta(doc)} do
+        delta_a_prime = Delta.transform(delta_b, delta_a, side)
+        delta_b_prime = Delta.transform(delta_a, delta_b, opposite(side))
+
+        doc_a =
+          doc
+          |> Delta.compose(delta_a)
+          |> Delta.compose(delta_b_prime)
+        doc_b =
+          doc
+          |> Delta.compose(delta_b)
+          |> Delta.compose(delta_a_prime)
+
+        ensure doc_a == doc_b
+      end
+    end
+  end
 
   describe "transform" do
     test "insert against insert" do

@@ -1,8 +1,23 @@
 language: elixir
+sudo: false
 
-elixir:
-  - 1.4.0
+elixir: [1.4.2]
+otp_release: 19.2
+
+cache:
+  directories:
+    - $HOME/.mix
+
+before_script:
+  - export PROJECT_NAME=text_delta
+  - export PLT_FILENAME=elixir-${TRAVIS_ELIXIR_VERSION}_${TRAVIS_OTP_RELEASE}.plt
+  - export PLT_LOCATION=$HOME/.mix/$PLT_FILENAME
+  # Download PLT from danielberkompas/travis_elixir_plts on Github
+  # Store in $PLT_LOCATION
+  - wget -O $PLT_LOCATION https://raw.github.com/danielberkompas/travis_elixir_plts/master/$PLT_FILENAME
+  - mix eqc.install --mini || true
 
 script:
   - mix test
-  - mix lint
+  - mix credo --strict
+  - dialyzer --no_check_plt --plt $PLT_LOCATION --no_native _build/test/lib/$PROJECT_NAME/ebin

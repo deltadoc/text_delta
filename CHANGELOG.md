@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+  - Property-based tests for composition, transformation and compaction
+
+### Fixed
+  - Insert duplication bug during delta compaction
+  - Delete/Delete misbehaviour bug during composition
 
 ## [1.0.2] - 2017-03-29
 ### Fixed

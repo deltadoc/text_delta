@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/everzet/text_delta.svg?branch=master)](https://travis-ci.org/everzet/text_delta)
 
-Elixir counter-part for the Quill.js [Delta](https://github.com/quilljs/delta)
+Elixir counter-part for the Quill.js [Delta](https://quilljs.com/docs/delta/)
 library. It provides a baseline for [Operational
 Transformation](https://en.wikipedia.org/wiki/Operational_transformation) of
 rich text.
 
-Here's Delta pitch from the [Delta.js repository](http://www.codecommit.com/blog/java/understanding-and-applying-operational-transformation):
+Here's Delta pitch from the [Delta.js repository](https://github.com/quilljs/delta):
 
 > Deltas are a simple, yet expressive format that can be used to describe contents and changes. The format is JSON based, and is human readable, yet easily parsible by machines. Deltas can describe any rich text document, includes all text and formatting information, without the ambiguity and complexity of HTML.
 >
@@ -44,15 +44,11 @@ differences from `ot_ex` that might help you make the decision:
    the delta format itself. This results in a more verbose format than what
    `ot_ex` uses.
 2. `ot_ex` uses fully reversible operations format, while `text_delta` is a
-   one-way. If reversibility is a must, `ot_ex` is a better option.
+   one-way. If reversibility is a must, `ot_ex` is the only option.
 3. `text_delta` allows arbitrary attributes to be attached to `insert` or
    `retain` operations. This would allow you to transform rich text alongside
    plain. With `ot_ex` you pretty much stuck with plain text format, which might
    not be a big deal if your format of choice is something like Markdown.
-4. `ot_ex` has RNG-backed test suite, which covers many more cases and,
-   potentially, has less bugs. `text_delta` uses more traditional example-based
-   tests similar to Quill Delta itself. I believe this provides adequeted
-   coverage, but nothing beats RNG :)
 
 ## Installation
 
@@ -76,6 +72,16 @@ This library is test-driven. In order to run tests, execute:
 ```bash
 $> mix test
 ```
+
+If this command fails, it is most likely due to that you don't have EQC
+installed, try:
+
+```bash
+$> mix eqc.install --mini
+```
+
+TextDelta uses property tests to validate that composition, transformation and
+compaction work as expected.
 
 The library also uses [Credo](http://credo-ci.org) and
 [Dialyzer](http://erlang.org/doc/man/dialyzer.html). To run both, execute:
