@@ -1,7 +1,41 @@
 defmodule TextDelta.DeltaTest do
   use ExUnit.Case
-  doctest TextDelta.Delta
+  use EQC.ExUnit
+  import TextDelta.Generators
+
   alias TextDelta.{Delta, Operation}
+  doctest TextDelta.Delta
+
+  describe "deltas compact" do
+    property "consecutive inserts with same attributes" do
+      forall ops <- list(bitstring_insert()) do
+        delta = Delta.new(ops)
+        ensure consecutive_ops_with_same_attrs(delta) == 0
+      end
+    end
+
+    property "consecutive retains with same attributes" do
+      forall ops <- list(retain()) do
+        delta = Delta.new(ops)
+        ensure consecutive_ops_with_same_attrs(delta) == 0
+      end
+    end
+
+    property "consecutive deletes" do
+      forall ops <- list(delete()) do
+        delta = Delta.new(ops)
+        ensure consecutive_ops_with_same_attrs(delta) == 0
+      end
+    end
+
+    defp consecutive_ops_with_same_attrs([]), do: 0
+    defp consecutive_ops_with_same_attrs(delta) do
+      delta
+      |> Enum.chunk_by(&Map.get(&1, :attributes))
+      |> Enum.filter(&(Enum.count(&1) > 1))
+      |> Enum.count()
+    end
+  end
 
   describe "create" do
     test "empty delta" do

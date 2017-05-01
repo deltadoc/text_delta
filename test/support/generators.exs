@@ -34,6 +34,12 @@ defmodule TextDelta.Generators do
     end
   end
 
+  def bitstring_insert do
+    let [str <- string(), attrs <- attributes()] do
+      Operation.insert(str, attrs)
+    end
+  end
+
   def retain do
     let [len <- operation_length(), attrs <- attributes()] do
       Operation.retain(len, attrs)
