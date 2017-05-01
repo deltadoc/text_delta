@@ -7,13 +7,13 @@ defmodule TextDelta.Generators do
   @max_operation_length 100
 
   def document do
-    let_shrink text <- text() do
+    let text <- text() do
       Delta.insert(Delta.new(), text)
     end
   end
 
   def delta do
-    let_shrink ops <- list(operation()) do
+    let ops <- list(operation()) do
       Delta.new(ops)
     end
   end
@@ -51,7 +51,7 @@ defmodule TextDelta.Generators do
   end
 
   def attributes do
-    let_shrink attrs <- list(attribute()) do
+    let attrs <- list(attribute()) do
       Map.new(attrs)
     end
   end
@@ -65,13 +65,13 @@ defmodule TextDelta.Generators do
   end
 
   def text do
-    let_shrink length <- text_length() do
+    let length <- text_length() do
       random_string(length)
     end
   end
 
   def string do
-    let_shrink length <- operation_length() do
+    let length <- operation_length() do
       random_string(length)
     end
   end
