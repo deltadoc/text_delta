@@ -58,8 +58,8 @@ defmodule TextDelta.Generators do
 
   def attribute do
     oneof [
-      {oneof([string()]), oneof([string(), bool(), int()])},
-      {oneof([:font, :style]), string()},
+      {oneof([non_empty_string()]), oneof([non_empty_string(), bool(), int()])},
+      {oneof([:font, :style]), non_empty_string()},
       {oneof([:bold, :italic]), bool()}
     ]
   end
@@ -74,6 +74,10 @@ defmodule TextDelta.Generators do
     let length <- operation_length() do
       random_string(length)
     end
+  end
+
+  def non_empty_string do
+    non_empty(string())
   end
 
   def priority_side do
