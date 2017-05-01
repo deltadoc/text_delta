@@ -1,4 +1,4 @@
-defmodule TextDelta.Delta.Iterator do
+defmodule TextDelta.Iterator do
   @moduledoc """
   Iterator iterates over two deltas at the same time, ensuring next elements in
   the resulting stream are of equal length.

@@ -1,4 +1,4 @@
-defmodule TextDelta.Delta.Transformation do
+defmodule TextDelta.Transformation do
   @moduledoc """
   The transformation of two concurrent operations such that they satisfy the
   convergence properties of Operational Transformation.

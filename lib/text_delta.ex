@@ -1,4 +1,4 @@
-defmodule TextDelta.Delta do
+defmodule TextDelta do
   @moduledoc """
   Delta is a format used to describe documents and changes.
 
@@ -31,7 +31,7 @@ defmodule TextDelta.Delta do
 
   ## Example
 
-      iex> alias TextDelta.Delta
+      iex> alias TextDelta.Delta, as: Delta
       iex> delta = Delta.new() |> Delta.insert("Gandalf", %{bold: true})
       [%{insert: "Gandalf", attributes: %{bold: true}}]
       iex> delta = delta |> Delta.insert(" the ")
@@ -44,8 +44,7 @@ defmodule TextDelta.Delta do
   [quill]: https://quilljs.com
   """
 
-  alias TextDelta.{Operation, Attributes}
-  alias TextDelta.Delta.{Composition, Transformation}
+  alias TextDelta.{Operation, Attributes, Composition, Transformation}
 
   @typedoc """
   Delta is a list of `t:TextDelta.Operation.retain/0`,

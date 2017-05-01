@@ -1,4 +1,4 @@
-defmodule TextDelta.Delta.Composition do
+defmodule TextDelta.Composition do
   @moduledoc """
   The composition of two non-concurrent operations into a single operation.
 
