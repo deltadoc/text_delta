@@ -1,9 +1,9 @@
 defmodule TextDelta.Delta.CompositionTest do
   use ExUnit.Case
   use EQC.ExUnit
+  import TextDelta.Generators
 
   alias TextDelta.Delta
-  import TextDelta.Generators
   doctest TextDelta.Delta.Composition
 
   property "(a + b) + c = a + (b + c)" do
