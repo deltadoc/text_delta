@@ -283,5 +283,20 @@ defmodule TextDelta.Delta.CompositionTest do
         |> Delta.insert("t", %{bold: true})
       assert Delta.compose(a, b) == composition
     end
+
+    test "delete+retain with delete" do
+      a =
+        Delta.new()
+        |> Delta.delete(1)
+        |> Delta.retain(1, %{style: "P"})
+      b =
+        Delta.new()
+        |> Delta.delete(1)
+      composition =
+        Delta.new()
+        |> Delta.delete(2)
+
+      assert Delta.compose(a, b) == composition
+    end
   end
 end
