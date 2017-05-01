@@ -13,23 +13,22 @@ defmodule TextDelta.Composition do
   changes.
   """
 
-  alias TextDelta.{Delta, Operation, Attributes}
-  alias TextDelta.Delta.Iterator
+  alias TextDelta.{Operation, Attributes, Iterator}
 
   @doc """
   Composes two operations into a single equivalent operation.
 
   ## Example
 
-      iex> TextDelta.Delta.compose([%{insert: "Bar"}], [%{insert: "Foo"}])
+      iex> TextDelta.compose([%{insert: "Bar"}], [%{insert: "Foo"}])
       [%{insert: "FooBar"}]
   """
-  @spec compose(Delta.t, Delta.t) :: Delta.t
+  @spec compose(TextDelta.t, TextDelta.t) :: TextDelta.t
   def compose(delta_a, delta_b) do
     {delta_a, delta_b}
     |> iterate()
-    |> do_compose(Delta.new())
-    |> Delta.trim()
+    |> do_compose(TextDelta.new())
+    |> TextDelta.trim()
   end
 
   defp do_compose({{nil, _}, {nil, _}}, result) do
@@ -37,18 +36,18 @@ defmodule TextDelta.Composition do
   end
 
   defp do_compose({{nil, _}, {op_b, remainder_b}}, result) do
-    List.foldl([op_b | remainder_b], result, &Delta.append(&2, &1))
+    List.foldl([op_b | remainder_b], result, &TextDelta.append(&2, &1))
   end
 
   defp do_compose({{op_a, remainder_a}, {nil, _}}, result) do
-    List.foldl([op_a | remainder_a], result, &Delta.append(&2, &1))
+    List.foldl([op_a | remainder_a], result, &TextDelta.append(&2, &1))
   end
 
   defp do_compose({{%{insert: _} = ins_a, remainder_a},
                    {%{insert: _} = ins_b, remainder_b}}, result) do
     {[ins_a | remainder_a], remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, ins_b))
+    |> do_compose(TextDelta.append(result, ins_b))
   end
 
   defp do_compose({{%{insert: el_a} = ins, remainder_a},
@@ -56,7 +55,7 @@ defmodule TextDelta.Composition do
     insert = Operation.insert(el_a, compose_attributes(ins, ret))
     {remainder_a, remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, insert))
+    |> do_compose(TextDelta.append(result, insert))
   end
 
   defp do_compose({{%{insert: _}, remainder_a},
@@ -70,28 +69,28 @@ defmodule TextDelta.Composition do
                    {%{insert: _} = ins, remainder_b}}, result) do
     {[del | remainder_a], remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, ins))
+    |> do_compose(TextDelta.append(result, ins))
   end
 
   defp do_compose({{%{delete: _} = del, remainder_a},
                    {%{retain: _} = ret, remainder_b}}, result) do
     {remainder_a, [ret | remainder_b]}
     |> iterate()
-    |> do_compose(Delta.append(result, del))
+    |> do_compose(TextDelta.append(result, del))
   end
 
   defp do_compose({{%{delete: _} = del_a, remainder_a},
                    {%{delete: _} = del_b, remainder_b}}, result) do
     {remainder_a, [del_b | remainder_b]}
     |> iterate()
-    |> do_compose(Delta.append(result, del_a))
+    |> do_compose(TextDelta.append(result, del_a))
   end
 
   defp do_compose({{%{retain: _} = ret, remainder_a},
                    {%{insert: _} = ins, remainder_b}}, result) do
     {[ret | remainder_a], remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, ins))
+    |> do_compose(TextDelta.append(result, ins))
   end
 
   defp do_compose({{%{retain: len} = ret_a, remainder_a},
@@ -99,14 +98,14 @@ defmodule TextDelta.Composition do
     retain = Operation.retain(len, compose_attributes(ret_a, ret_b, true))
     {remainder_a, remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, retain))
+    |> do_compose(TextDelta.append(result, retain))
   end
 
   defp do_compose({{%{retain: _}, remainder_a},
                    {%{delete: _} = del, remainder_b}}, result) do
     {remainder_a, remainder_b}
     |> iterate()
-    |> do_compose(Delta.append(result, del))
+    |> do_compose(TextDelta.append(result, del))
   end
 
   defp iterate(stream), do: Iterator.next(stream, :delete)

@@ -1,7 +1,8 @@
 defmodule TextDelta.AttributesTest do
   use ExUnit.Case
-  doctest TextDelta.Attributes
   alias TextDelta.Attributes
+
+  doctest TextDelta.Attributes
 
   describe "compose" do
     @attributes %{bold: true, color: "red"}

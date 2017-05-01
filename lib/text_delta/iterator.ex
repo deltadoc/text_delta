@@ -4,12 +4,12 @@ defmodule TextDelta.Iterator do
   the resulting stream are of equal length.
   """
 
-  alias TextDelta.{Delta, Operation}
+  alias TextDelta.Operation
 
   @typedoc """
   Two deltas to iterate.
   """
-  @type deltas :: {Delta.t, Delta.t}
+  @type deltas :: {TextDelta.t, TextDelta.t}
 
   @typedoc """
   A type which is not to be sliced when iterating. Can be `:insert`, `:delete`
@@ -27,7 +27,7 @@ defmodule TextDelta.Iterator do
   A delta's next scanned full or partial operation, and its resulting tail
   delta.
   """
-  @type delta_split :: {Operation.t | nil, Delta.t}
+  @type delta_split :: {Operation.t | nil, TextDelta.t}
 
   @doc """
   Generates next cycle by iterating over given deltas.

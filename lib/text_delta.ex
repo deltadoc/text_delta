@@ -31,12 +31,11 @@ defmodule TextDelta do
 
   ## Example
 
-      iex> alias TextDelta.Delta, as: Delta
-      iex> delta = Delta.new() |> Delta.insert("Gandalf", %{bold: true})
+      iex> delta = TextDelta.new() |> TextDelta.insert("Gandalf", %{bold: true})
       [%{insert: "Gandalf", attributes: %{bold: true}}]
-      iex> delta = delta |> Delta.insert(" the ")
+      iex> delta = delta |> TextDelta.insert(" the ")
       [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "}]
-      iex> delta |> Delta.insert("Grey", %{color: "#ccc"})
+      iex> delta |> TextDelta.insert("Grey", %{color: "#ccc"})
       [%{insert: "Gandalf", attributes: %{bold: true}}, %{insert: " the "},
        %{insert: "Grey", attributes: %{color: "#ccc"}}]
 
@@ -76,13 +75,12 @@ defmodule TextDelta do
   Same as with underlying `TextDelta.Operation.insert/2` function, attributes
   are optional.
 
-  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
-  delta after construction. So all `append` rules apply.
+  `TextDelta.append/2` is used undert the hood to add operation to the delta
+  after construction. So all `append` rules apply.
 
   ## Example
 
-      iex> alias TextDelta.Delta
-      iex> Delta.new() |> Delta.insert("hello", %{bold: true})
+      iex> TextDelta.new() |> TextDelta.insert("hello", %{bold: true})
       [%{insert: "hello", attributes: %{bold: true}}]
   """
   @spec insert(t, Operation.element, Attributes.t) :: t
@@ -96,13 +94,12 @@ defmodule TextDelta do
   Same as with underlying `TextDelta.Operation.retain/2` function, attributes
   are optional.
 
-  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
-  delta after construction. So all `append` rules apply.
+  `TextDelta.append/2` is used undert the hood to add operation to the delta
+  after construction. So all `append` rules apply.
 
   ## Example
 
-      iex> alias TextDelta.Delta
-      iex> Delta.new() |> Delta.retain(5, %{italic: true})
+      iex> TextDelta.new() |> TextDelta.retain(5, %{italic: true})
       [%{retain: 5, attributes: %{italic: true}}]
   """
   @spec retain(t, non_neg_integer, Attributes.t) :: t
@@ -113,13 +110,12 @@ defmodule TextDelta do
   @doc """
   Creates and appends new delete operation to the delta.
 
-  `TextDelta.Delta.append/2` is used undert the hood to add operation to the
-  delta after construction. So all `append` rules apply.
+  `TextDelta.append/2` is used undert the hood to add operation to the delta
+  after construction. So all `append` rules apply.
 
   ## Example
 
-      iex> alias TextDelta.Delta
-      iex> Delta.new() |> Delta.delete(3)
+      iex> TextDelta.new() |> TextDelta.delete(3)
       [%{delete: 3}]
   """
   @spec delete(t, non_neg_integer) :: t
@@ -142,7 +138,7 @@ defmodule TextDelta do
   ## Example
 
       iex> operation = TextDelta.Operation.insert("hello")
-      iex> TextDelta.Delta.new() |> TextDelta.Delta.append(operation)
+      iex> TextDelta.new() |> TextDelta.append(operation)
       [%{insert: "hello"}]
   """
   @spec append(t, Operation.t) :: t
@@ -165,7 +161,7 @@ defmodule TextDelta do
 
   ## Example
 
-      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.trim()
+      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.trim()
       [%{insert: "hello"}]
   """
   @spec trim(t) :: t
@@ -190,13 +186,13 @@ defmodule TextDelta do
 
   ## Example
 
-      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.Delta.length()
+      iex> [%{insert: "hello"}, %{retain: 5}] |> TextDelta.length()
       10
 
   The function also allows to select which types of operations we include in the
   summary with optional second argument:
 
-      iex> [%{insert: "hi"}, %{retain: 5}] |> TextDelta.Delta.length([:retain])
+      iex> [%{insert: "hi"}, %{retain: 5}] |> TextDelta.length([:retain])
       5
   """
   @spec length(t, [Operation.type]) :: non_neg_integer

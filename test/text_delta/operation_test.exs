@@ -1,7 +1,8 @@
 defmodule TextDelta.OperationTest do
   use ExUnit.Case
-  doctest TextDelta.Operation
   alias TextDelta.Operation
+
+  doctest TextDelta.Operation
 
   describe "insert" do
     test "text" do

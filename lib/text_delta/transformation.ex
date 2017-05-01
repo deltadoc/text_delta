@@ -12,7 +12,7 @@ defmodule TextDelta.Transformation do
 
     S ○ Oa ○ transform(Ob, Oa) = S ○ Ob ○ transform(Oa, Ob)
 
-  Transformation also takes a third `t:TextDelta.Delta.Transformation.priority`
+  Transformation also takes a third `t:TextDelta.Transformation.priority`
   argument that indicates which operation came later. This is important when
   deciding whether it is acceptable to break up insert operations from one
   operation or the other.
@@ -26,8 +26,7 @@ defmodule TextDelta.Transformation do
   [ot2]: http://www.codecommit.com/blog/java/understanding-and-applying-operational-transformation
   """
 
-  alias TextDelta.{Delta, Operation, Attributes}
-  alias TextDelta.Delta.Iterator
+  alias TextDelta.{Operation, Attributes, Iterator}
 
   @typedoc """
   Atom representing transformation priority. Should we prioritise left or right
@@ -38,12 +37,12 @@ defmodule TextDelta.Transformation do
   @doc """
   Transforms given `delta_b` against given `delta_a`.
   """
-  @spec transform(Delta.t, Delta.t, priority) :: Delta.t
+  @spec transform(TextDelta.t, TextDelta.t, priority) :: TextDelta.t
   def transform(delta_a, delta_b, priority) do
     {delta_a, delta_b}
     |> iterate()
-    |> do_transform(priority, Delta.new())
-    |> Delta.trim()
+    |> do_transform(priority, TextDelta.new())
+    |> TextDelta.trim()
   end
 
   defp do_transform({{_, _}, {nil, _}}, _, result) do
@@ -51,7 +50,7 @@ defmodule TextDelta.Transformation do
   end
 
   defp do_transform({{nil, _}, {op_b, remainder_b}}, _, result) do
-    List.foldl([op_b | remainder_b], result, &Delta.append(&2, &1))
+    List.foldl([op_b | remainder_b], result, &TextDelta.append(&2, &1))
   end
 
   defp do_transform({{%{insert: _} = ins_a, remainder_a},
@@ -59,14 +58,14 @@ defmodule TextDelta.Transformation do
     retain = make_retain(ins_a)
     {remainder_a, [ins_b | remainder_b]}
     |> iterate()
-    |> do_transform(:left, Delta.append(result, retain))
+    |> do_transform(:left, TextDelta.append(result, retain))
   end
 
   defp do_transform({{%{insert: _} = ins_a, remainder_a},
                      {%{insert: _} = ins_b, remainder_b}}, :right, result) do
     {[ins_a | remainder_a], remainder_b}
     |> iterate()
-    |> do_transform(:right, Delta.append(result, ins_b))
+    |> do_transform(:right, TextDelta.append(result, ins_b))
   end
 
   defp do_transform({{%{insert: _} = ins, remainder_a},
@@ -74,7 +73,7 @@ defmodule TextDelta.Transformation do
     retain = make_retain(ins)
     {remainder_a, [ret | remainder_b]}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, retain))
+    |> do_transform(priority, TextDelta.append(result, retain))
   end
 
   defp do_transform({{%{insert: _} = ins, remainder_a},
@@ -82,14 +81,14 @@ defmodule TextDelta.Transformation do
     retain = make_retain(ins)
     {remainder_a, [del | remainder_b]}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, retain))
+    |> do_transform(priority, TextDelta.append(result, retain))
   end
 
   defp do_transform({{%{delete: _} = del, remainder_a},
                      {%{insert: _} = ins, remainder_b}}, priority, result) do
     {[del | remainder_a], remainder_b}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, ins))
+    |> do_transform(priority, TextDelta.append(result, ins))
   end
 
   defp do_transform({{%{delete: _}, remainder_a},
@@ -110,7 +109,7 @@ defmodule TextDelta.Transformation do
                      {%{insert: _} = ins, remainder_b}}, priority, result) do
     {[ret | remainder_a], remainder_b}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, ins))
+    |> do_transform(priority, TextDelta.append(result, ins))
   end
 
   defp do_transform({{%{retain: _} = ret_a, remainder_a},
@@ -118,14 +117,14 @@ defmodule TextDelta.Transformation do
     retain = make_retain(ret_a, transform_attributes(ret_a, ret_b, priority))
     {remainder_a, remainder_b}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, retain))
+    |> do_transform(priority, TextDelta.append(result, retain))
   end
 
   defp do_transform({{%{retain: _}, remainder_a},
                      {%{delete: _} = del, remainder_b}}, priority, result) do
     {remainder_a, remainder_b}
     |> iterate()
-    |> do_transform(priority, Delta.append(result, del))
+    |> do_transform(priority, TextDelta.append(result, del))
   end
 
   defp iterate(stream), do: Iterator.next(stream, :insert)

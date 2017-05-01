@@ -4,9 +4,8 @@ defmodule TextDelta.Attributes do
   or `t:TextDelta.Operation.retain/0` operations. This library uses maps to
   represent attributes.
 
-  Same as `TextDelta.Delta`, attributes are composable and transformable. This
-  library does not make any assumptions about attribute types, values or
-  composition.
+  Same as `TextDelta`, attributes are composable and transformable. This library
+  does not make any assumptions about attribute types, values or composition.
   """
 
   @typedoc """
@@ -30,7 +29,7 @@ defmodule TextDelta.Attributes do
   `keep_nils` flag. This flag controls if we want to cleanup all the `null`
   attributes before returning.
 
-  This function is used by `TextDelta.Delta.compose/2`.
+  This function is used by `TextDelta.compose/2`.
 
   ## Examples
 
@@ -67,7 +66,7 @@ defmodule TextDelta.Attributes do
   @doc """
   Transforms given attribute set against another.
 
-  This function is used by `TextDelta.Delta.transform/3`.
+  This function is used by `TextDelta.transform/3`.
 
   ## Example
 
