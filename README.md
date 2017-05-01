@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/everzet/text_delta.svg?branch=master)](https://travis-ci.org/everzet/text_delta)
 
-Elixir counter-part for the Quill.js [Delta](https://github.com/quilljs/delta)
+Elixir counter-part for the Quill.js [Delta](https://quilljs.com/docs/delta/)
 library. It provides a baseline for [Operational
 Transformation](https://en.wikipedia.org/wiki/Operational_transformation) of
 rich text.
 
-Here's Delta pitch from the [Delta.js repository](http://www.codecommit.com/blog/java/understanding-and-applying-operational-transformation):
+Here's Delta pitch from the [Delta.js repository](https://github.com/quilljs/delta):
 
 > Deltas are a simple, yet expressive format that can be used to describe contents and changes. The format is JSON based, and is human readable, yet easily parsible by machines. Deltas can describe any rich text document, includes all text and formatting information, without the ambiguity and complexity of HTML.
 >
