@@ -3,8 +3,9 @@ defmodule TextDelta.Generators do
 
   alias TextDelta.Operation
 
-  @max_text_length 500
   @max_operation_length 100
+  @max_string_length 100
+  @max_text_length 500
 
   def document do
     let text <- text() do
@@ -77,7 +78,7 @@ defmodule TextDelta.Generators do
   end
 
   def string do
-    let length <- operation_length() do
+    let length <- string_length() do
       random_string(length)
     end
   end
@@ -92,6 +93,10 @@ defmodule TextDelta.Generators do
 
   def text_length do
     choose(0, @max_text_length)
+  end
+
+  def string_length do
+    choose(0, @max_string_length)
   end
 
   def operation_length do
