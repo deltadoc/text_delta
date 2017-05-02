@@ -5,12 +5,23 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.1.0] - 2017-05-02
 ### Added
   - Property-based tests for composition, transformation and compaction
 
 ### Fixed
   - Insert duplication bug during delta compaction
   - Delete/Delete misbehaviour bug during composition
+
+### Changed
+  - `TextDelta.Delta` is now just `TextDelta`
+  - `TextDelta.Delta.*` modules moved into `TextDelta.*`
+  - `TextDelta` now generates and operates on `%TextDelta{}` struct
+  - `TextDelta.Delta` is still there and works like before in form of a BC
+    layer, so your existing code would still work while you upgrade. To be
+    removed in 2.x
+  - Slightly improved documentation across modules
 
 ## [1.0.2] - 2017-03-29
 ### Fixed
@@ -35,7 +46,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Attributes support in `insert` and `retain`
   - Delta composition and transformation with attributes supported
 
-[Unreleased]: https://github.com/everzet/text_delta/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/everzet/text_delta/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/everzet/text_delta/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/everzet/text_delta/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/everzet/text_delta/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/everzet/text_delta/compare/cdaf5769ba3abb36aa6a6e2431662164a5a30945...v1.0.0
