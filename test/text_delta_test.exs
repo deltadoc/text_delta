@@ -28,9 +28,10 @@ defmodule TextDeltaTest do
       end
     end
 
-    defp consecutive_ops_with_same_attrs([]), do: 0
+    defp consecutive_ops_with_same_attrs(%TextDelta{ops: []}), do: 0
     defp consecutive_ops_with_same_attrs(delta) do
       delta
+      |> TextDelta.operations()
       |> Enum.chunk_by(&Map.get(&1, :attributes))
       |> Enum.filter(&(Enum.count(&1) > 1))
       |> Enum.count()
@@ -39,7 +40,7 @@ defmodule TextDeltaTest do
 
   describe "create" do
     test "empty delta" do
-      assert TextDelta.new() == []
+      assert ops(TextDelta.new()) == []
     end
 
     test "empty operations" do
@@ -48,14 +49,14 @@ defmodule TextDeltaTest do
         |> TextDelta.insert("")
         |> TextDelta.delete(0)
         |> TextDelta.retain(0)
-      assert delta == []
+      assert ops(delta) == []
     end
   end
 
   describe "insert" do
     test "text" do
-      delta = TextDelta.new() |> TextDelta.insert("test")
-      assert delta == [%{insert: "test"}]
+      delta = TextDelta.insert(TextDelta.new(), "test")
+      assert ops(delta) == [%{insert: "test"}]
     end
 
     test "after delete" do
@@ -63,7 +64,7 @@ defmodule TextDeltaTest do
         TextDelta.new()
         |> TextDelta.delete(1)
         |> TextDelta.insert("a")
-      assert delta == [%{insert: "a"}, %{delete: 1}]
+      assert ops(delta) == [%{insert: "a"}, %{delete: 1}]
     end
 
     test "after delete with merge" do
@@ -72,7 +73,7 @@ defmodule TextDeltaTest do
         |> TextDelta.insert("a")
         |> TextDelta.delete(1)
         |> TextDelta.insert("b")
-      assert delta == [%{insert: "ab"}, %{delete: 1}]
+      assert ops(delta) == [%{insert: "ab"}, %{delete: 1}]
     end
 
     test "after delete without merge" do
@@ -81,102 +82,100 @@ defmodule TextDeltaTest do
         |> TextDelta.insert(1)
         |> TextDelta.delete(1)
         |> TextDelta.insert("a")
-      assert delta == [%{insert: 1}, %{insert: "a"}, %{delete: 1}]
+      assert ops(delta) == [%{insert: 1}, %{insert: "a"}, %{delete: 1}]
     end
   end
 
   describe "delete" do
     test "0" do
-      delta = TextDelta.new() |> TextDelta.delete(0)
-      assert delta == []
+      delta = TextDelta.delete(TextDelta.new(), 0)
+      assert ops(delta) == []
     end
 
     test "positive" do
-      delta = TextDelta.new() |> TextDelta.delete(3)
-      assert delta == [%{delete: 3}]
+      delta = TextDelta.delete(TextDelta.new(), 3)
+      assert ops(delta) == [%{delete: 3}]
     end
   end
 
   describe "retain" do
     test "0" do
-      delta = TextDelta.new() |> TextDelta.retain(0)
-      assert delta == []
+      delta = TextDelta.retain(TextDelta.new(), 0)
+      assert ops(delta) == []
     end
 
     test "positive" do
-      delta = TextDelta.new() |> TextDelta.retain(3)
-      assert delta == [%{retain: 3}]
+      delta = TextDelta.retain(TextDelta.new(), 3)
+      assert ops(delta) == [%{retain: 3}]
     end
   end
 
   describe "append" do
     test "to empty delta" do
       op = Operation.insert("a")
-      assert TextDelta.append([], op) == [%{insert: "a"}]
-      assert TextDelta.append(nil, op) == [%{insert: "a"}]
+      assert ops(TextDelta.append(%TextDelta{}, op)) == [%{insert: "a"}]
     end
 
     test "no operation" do
       delta = TextDelta.new()
-      assert TextDelta.append(delta, nil) == []
-      assert TextDelta.append(delta, []) == []
+      assert ops(TextDelta.append(delta, nil)) == []
+      assert ops(TextDelta.append(delta, [])) == []
     end
 
     test "consecutive deletes" do
-      delta = TextDelta.new() |> TextDelta.delete(3)
+      delta = TextDelta.delete(TextDelta.new(), 3)
       op = Operation.delete(3)
-      assert TextDelta.append(delta, op) == [%{delete: 6}]
+      assert ops(TextDelta.append(delta, op)) == [%{delete: 6}]
     end
 
     test "consecutive inserts" do
-      delta = TextDelta.new() |> TextDelta.insert("a")
+      delta = TextDelta.insert(TextDelta.new(), "a")
       op = Operation.insert("c")
-      assert TextDelta.append(delta, op) == [%{insert: "ac"}]
+      assert ops(TextDelta.append(delta, op)) == [%{insert: "ac"}]
     end
 
     test "consecutive inserts with same attributes" do
-      delta = TextDelta.new() |> TextDelta.insert("a", %{bold: true})
+      delta = TextDelta.insert(TextDelta.new(), "a", %{bold: true})
       op = Operation.insert("c", %{bold: true})
-      assert TextDelta.append(delta, op) == [%{insert: "ac", attributes: %{bold: true}}]
+      assert ops(TextDelta.append(delta, op)) == [
+        %{insert: "ac", attributes: %{bold: true}}]
     end
 
     test "consecutive embed inserts with same attributes" do
-      delta = TextDelta.new() |> TextDelta.insert(1, %{bold: true})
+      delta = TextDelta.insert(TextDelta.new(), 1, %{bold: true})
       op = Operation.insert(1, %{bold: true})
-      assert TextDelta.append(delta, op) == [
+      assert ops(TextDelta.append(delta, op)) == [
         %{insert: 1, attributes: %{bold: true}},
-        %{insert: 1, attributes: %{bold: true}}
-      ]
+        %{insert: 1, attributes: %{bold: true}}]
     end
 
     test "consecutive embed inserts with different attributes" do
-      delta = TextDelta.new() |> TextDelta.insert("a", %{bold: true})
+      delta = TextDelta.insert(TextDelta.new(), "a", %{bold: true})
       op = Operation.insert("c", %{italic: true})
-      assert TextDelta.append(delta, op) == [
+      assert ops(TextDelta.append(delta, op)) == [
         %{insert: "a", attributes: %{bold: true}},
-        %{insert: "c", attributes: %{italic: true}}
-      ]
+        %{insert: "c", attributes: %{italic: true}}]
     end
 
     test "consecutive retains" do
-      delta = TextDelta.new() |> TextDelta.retain(3)
+      delta = TextDelta.retain(TextDelta.new(), 3)
       op = Operation.retain(3)
-      assert TextDelta.append(delta, op) == [%{retain: 6}]
+      assert ops(TextDelta.append(delta, op)) == [%{retain: 6}]
     end
 
     test "consecutive retains with same attributes" do
-      delta = TextDelta.new() |> TextDelta.retain(3, %{color: "red"})
+      delta = TextDelta.retain(TextDelta.new(), 3, %{color: "red"})
       op = Operation.retain(3, %{color: "red"})
-      assert TextDelta.append(delta, op) == [%{retain: 6, attributes: %{color: "red"}}]
+      assert ops(TextDelta.append(delta, op)) == [
+        %{retain: 6, attributes: %{color: "red"}}]
     end
 
     test "consecutive retains with different attributes" do
-      delta = TextDelta.new() |> TextDelta.retain(3, %{color: "red"})
+      delta = TextDelta.retain(TextDelta.new(), 3, %{color: "red"})
       op = Operation.retain(2, %{color: "blue"})
-      assert TextDelta.append(delta, op) == [
+      assert ops(TextDelta.append(delta, op)) == [
         %{retain: 3, attributes: %{color: "red"}},
-        %{retain: 2, attributes: %{color: "blue"}}
-      ]
+        %{retain: 2, attributes: %{color: "blue"}}]
     end
 
     test "an edge-case with potential duplication of inserts" do
@@ -186,20 +185,18 @@ defmodule TextDeltaTest do
         |> TextDelta.retain(1)
         |> TextDelta.delete(1)
         |> TextDelta.insert("a")
-
-      assert delta == [
+      assert ops(delta) == [
         %{insert: "collaborative"},
         %{retain: 1},
         %{insert: "a"},
-        %{delete: 1}
-      ]
+        %{delete: 1}]
     end
   end
 
   describe "trim" do
     test "delta with no retains at the end" do
-      delta = TextDelta.new() |> TextDelta.insert("a")
-      assert TextDelta.trim(delta) == [%{insert: "a"}]
+      delta = TextDelta.insert(TextDelta.new(), "a")
+      assert ops(TextDelta.trim(delta)) == [%{insert: "a"}]
     end
 
     test "delta with a retain at the end" do
@@ -207,7 +204,7 @@ defmodule TextDeltaTest do
         TextDelta.new()
         |> TextDelta.insert("a")
         |> TextDelta.retain(3)
-      assert TextDelta.trim(delta) == [%{insert: "a"}]
+      assert ops(TextDelta.trim(delta)) == [%{insert: "a"}]
     end
 
     test "delta with a retain at the beginning" do
@@ -215,7 +212,9 @@ defmodule TextDeltaTest do
         TextDelta.new()
         |> TextDelta.retain(3)
         |> TextDelta.insert("a")
-      assert TextDelta.trim(delta) == [%{retain: 3}, %{insert: "a"}]
+      assert ops(TextDelta.trim(delta)) == [%{retain: 3}, %{insert: "a"}]
     end
   end
+
+  defp ops(delta), do: TextDelta.operations(delta)
 end

@@ -20,12 +20,16 @@ defmodule TextDelta.Composition do
 
   ## Example
 
-      iex> TextDelta.compose([%{insert: "Bar"}], [%{insert: "Foo"}])
-      [%{insert: "FooBar"}]
+      iex> foo = TextDelta.insert(TextDelta.new(), "Foo")
+      %TextDelta{ops: [%{insert: "Foo"}]}
+      iex> bar = TextDelta.insert(TextDelta.new(), "Bar")
+      %TextDelta{ops: [%{insert: "Bar"}]}
+      iex> TextDelta.compose(bar, foo)
+      %TextDelta{ops: [%{insert: "FooBar"}]}
   """
   @spec compose(TextDelta.t, TextDelta.t) :: TextDelta.t
-  def compose(delta_a, delta_b) do
-    {delta_a, delta_b}
+  def compose(%TextDelta{ops: ops_a}, %TextDelta{ops: ops_b}) do
+    {ops_a, ops_b}
     |> iterate()
     |> do_compose(TextDelta.new())
     |> TextDelta.trim()

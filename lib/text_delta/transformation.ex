@@ -38,8 +38,8 @@ defmodule TextDelta.Transformation do
   Transforms given `delta_b` against given `delta_a`.
   """
   @spec transform(TextDelta.t, TextDelta.t, priority) :: TextDelta.t
-  def transform(delta_a, delta_b, priority) do
-    {delta_a, delta_b}
+  def transform(%TextDelta{ops: ops_a}, %TextDelta{ops: ops_b}, priority) do
+    {ops_a, ops_b}
     |> iterate()
     |> do_transform(priority, TextDelta.new())
     |> TextDelta.trim()

@@ -3,7 +3,8 @@ defmodule TextDelta.Delta do
   This module is here only for backwards compatibility. Use `TextDelta` instead.
   """
 
-  alias TextDelta.{Operation, Attributes, Transformation}
+  alias TextDelta.{Operation, Attributes}
+  alias TextDelta.Delta.{Transformation, Composition}
 
   @type t :: [Operation.t]
   @type document :: [Operation.insert]
@@ -11,56 +12,75 @@ defmodule TextDelta.Delta do
   @doc false
   @spec new([Operation.t]) :: t
   def new(ops \\ []) do
-    TextDelta.new(ops)
+    ops
+    |> TextDelta.new()
+    |> unwrap()
   end
 
   @doc false
   @spec insert(t, Operation.element, Attributes.t) :: t
   def insert(delta, el, attrs \\ %{}) do
-    TextDelta.insert(delta, el, attrs)
+    delta
+    |> wrap()
+    |> TextDelta.insert(el, attrs)
+    |> unwrap()
   end
 
   @doc false
   @spec retain(t, non_neg_integer, Attributes.t) :: t
   def retain(delta, len, attrs \\ %{}) do
-    TextDelta.retain(delta, len, attrs)
+    delta
+    |> wrap()
+    |> TextDelta.retain(len, attrs)
+    |> unwrap()
   end
 
   @doc false
   @spec delete(t, non_neg_integer) :: t
   def delete(delta, len) do
-    TextDelta.delete(delta, len)
+    delta
+    |> wrap()
+    |> TextDelta.delete(len)
+    |> unwrap()
   end
 
   @doc false
-  @spec append(t, Operation.t) :: t
+  @spec append(t | nil, Operation.t) :: t
+  def append(nil, op), do: append(new(), op)
   def append(delta, op) do
-    TextDelta.append(delta, op)
+    delta
+    |> wrap()
+    |> TextDelta.append(op)
+    |> unwrap()
   end
 
-  @doc false
-  @spec compose(t, t) :: t
-  def compose(delta_a, delta_b) do
-    TextDelta.compose(delta_a, delta_b)
-  end
-
-  @doc false
-  @spec transform(t, t, Transformation.priority) :: t
-  def transform(delta_a, delta_b, priority) do
-    TextDelta.transform(delta_a, delta_b, priority)
-  end
+  defdelegate compose(delta_a, delta_b), to: Composition
+  defdelegate transform(delta_a, delta_b, priority), to: Transformation
 
   @doc false
   @spec trim(t) :: t
   def trim(delta) do
-    TextDelta.trim(delta)
+    delta
+    |> wrap()
+    |> TextDelta.trim()
+    |> unwrap()
   end
 
   @doc false
   @spec length(t, [Operation.type]) :: non_neg_integer
   def length(delta, included_ops \\ [:insert, :retain, :delete]) do
-    TextDelta.length(delta, included_ops)
+    delta
+    |> wrap()
+    |> TextDelta.length(included_ops)
   end
+
+  @doc false
+  @spec wrap(t) :: TextDelta.t
+  def wrap(ops), do: TextDelta.new(ops)
+
+  @doc false
+  @spec unwrap(TextDelta.t) :: t
+  def unwrap(delta), do: TextDelta.operations(delta)
 end
 
 defmodule TextDelta.Delta.Composition do
@@ -69,8 +89,16 @@ defmodule TextDelta.Delta.Composition do
   `TextDelta.Composition` instead.
   """
 
-  defdelegate compose(delta_a, delta_b),
-    to: TextDelta.Composition
+  alias TextDelta.Delta
+
+  @doc false
+  @spec compose(Delta.t, Delta.t) :: Delta.t
+  def compose(delta_a, delta_b) do
+    delta_a
+    |> Delta.wrap()
+    |> TextDelta.compose(Delta.wrap(delta_b))
+    |> Delta.unwrap()
+  end
 end
 
 defmodule TextDelta.Delta.Transformation do
@@ -79,10 +107,18 @@ defmodule TextDelta.Delta.Transformation do
   `TextDelta.Transformation` instead.
   """
 
+  alias TextDelta.Delta
+
   @type priority :: :left | :right
 
-  defdelegate transform(delta_a, delta_b, priority),
-    to: TextDelta.Transformation
+  @doc false
+  @spec transform(Delta.t, Delta.t, priority) :: Delta.t
+  def transform(delta_a, delta_b, priority) do
+    delta_a
+    |> Delta.wrap()
+    |> TextDelta.transform(Delta.wrap(delta_b), priority)
+    |> Delta.unwrap()
+  end
 end
 
 defmodule TextDelta.Delta.Iterator do
@@ -96,6 +132,5 @@ defmodule TextDelta.Delta.Iterator do
   @type cycle :: {delta_split, delta_split}
   @type delta_split :: {Operation.t | nil, Delta.t}
 
-  defdelegate next(deltas, skip_type \\ nil),
-    to: TextDelta.Iterator
+  defdelegate next(deltas, skip_type \\ nil), to: TextDelta.Iterator
 end
