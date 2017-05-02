@@ -1,15 +1,20 @@
-defmodule TextDelta.Delta.Iterator do
+defmodule TextDelta.Iterator do
   @moduledoc """
-  Iterator iterates over two deltas at the same time, ensuring next elements in
-  the resulting stream are of equal length.
+  Iterator iterates over two sets of operations at the same time, ensuring next
+  elements in the resulting stream are of equal length.
   """
 
-  alias TextDelta.{Delta, Operation}
+  alias TextDelta.Operation
 
   @typedoc """
-  Two deltas to iterate.
+  Individual set of operations.
   """
-  @type deltas :: {Delta.t, Delta.t}
+  @type set :: [Operation.t]
+
+  @typedoc """
+  Two sets of operations to iterate.
+  """
+  @type sets :: {set, set}
 
   @typedoc """
   A type which is not to be sliced when iterating. Can be `:insert`, `:delete`
@@ -18,22 +23,21 @@ defmodule TextDelta.Delta.Iterator do
   @type skip_type :: :insert | :delete | nil
 
   @typedoc """
-  A tuple representing the new head operations and tail deltas of the two
-  deltas being iterated over.
+  A tuple representing the new head and tail operations of the two operation
+  sets being iterated over.
   """
-  @type cycle :: {delta_split, delta_split}
+  @type cycle :: {set_split, set_split}
 
   @typedoc """
-  A delta's next scanned full or partial operation, and its resulting tail
-  delta.
+  A set's next scanned full or partial operation, and its resulting tail set.
   """
-  @type delta_split :: {Operation.t | nil, Delta.t}
+  @type set_split :: {Operation.t | nil, set}
 
   @doc """
-  Generates next cycle by iterating over given deltas.
+  Generates next cycle by iterating over given sets of operations.
   """
-  @spec next(deltas, skip_type) :: cycle
-  def next(deltas, skip_type \\ nil)
+  @spec next(sets, skip_type) :: cycle
+  def next(sets, skip_type \\ nil)
 
   def next({[], []}, _) do
     {{nil, []}, {nil, []}}
@@ -47,10 +51,10 @@ defmodule TextDelta.Delta.Iterator do
     {{head_a, tail_a}, {nil, []}}
   end
 
-  def next({[head_a | _], [head_b | _]} = deltas, skip_type) do
+  def next({[head_a | _], [head_b | _]} = sets, skip_type) do
     comparison = Operation.compare(head_a, head_b)
     skip = Operation.type(head_a) == skip_type
-    do_next(deltas, comparison, skip)
+    do_next(sets, comparison, skip)
   end
 
   defp do_next({[head_a | tail_a], [head_b | tail_b]}, :gt, false) do

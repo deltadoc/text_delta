@@ -1,26 +1,27 @@
 defmodule TextDelta.Generators do
   use EQC.ExUnit
 
-  alias TextDelta.{Delta, Operation}
+  alias TextDelta.Operation
 
-  @max_text_length 500
   @max_operation_length 100
+  @max_string_length 100
+  @max_text_length 500
 
   def document do
     let text <- text() do
-      Delta.insert(Delta.new(), text)
+      TextDelta.insert(TextDelta.new(), text)
     end
   end
 
   def delta do
     let ops <- list(operation()) do
-      Delta.new(ops)
+      TextDelta.new(ops)
     end
   end
 
   def document_delta(doc) do
     such_that delta <- delta() do
-      Delta.length(doc) >= Delta.length(delta, [:retain, :delete])
+      TextDelta.length(doc) >= TextDelta.length(delta, [:retain, :delete])
     end
   end
 
@@ -77,7 +78,7 @@ defmodule TextDelta.Generators do
   end
 
   def string do
-    let length <- operation_length() do
+    let length <- string_length() do
       random_string(length)
     end
   end
@@ -92,6 +93,10 @@ defmodule TextDelta.Generators do
 
   def text_length do
     choose(0, @max_text_length)
+  end
+
+  def string_length do
+    choose(0, @max_string_length)
   end
 
   def operation_length do

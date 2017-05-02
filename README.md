@@ -57,7 +57,7 @@ in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:text_delta, "~> 1.0.0"}]
+  [{:text_delta, "~> 1.1.0"}]
 end
 ```
 
