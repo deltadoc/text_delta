@@ -1,7 +1,9 @@
+# All modules here are only for bacwards compatibility and will be removed in
+# next major bump - 2.0. Please upgrade to the new public API ASAP.
+
 defmodule TextDelta.Delta do
-  @moduledoc """
-  This module is here only for backwards compatibility. Use `TextDelta` instead.
-  """
+  # Deprecated and to be removed in 2.0
+  @moduledoc false
 
   alias TextDelta.{Operation, Attributes}
   alias TextDelta.Delta.{Transformation, Composition}
@@ -84,10 +86,8 @@ defmodule TextDelta.Delta do
 end
 
 defmodule TextDelta.Delta.Composition do
-  @moduledoc """
-  This module is here only for backwards compatibility. Use
-  `TextDelta.Composition` instead.
-  """
+  # Deprecated and to be removed in 2.0
+  @moduledoc false
 
   alias TextDelta.Delta
 
@@ -102,10 +102,8 @@ defmodule TextDelta.Delta.Composition do
 end
 
 defmodule TextDelta.Delta.Transformation do
-  @moduledoc """
-  This module is here only for backwards compatibility. Use
-  `TextDelta.Transformation` instead.
-  """
+  # Deprecated and to be removed in 2.0
+  @moduledoc false
 
   alias TextDelta.Delta
 
@@ -122,10 +120,8 @@ defmodule TextDelta.Delta.Transformation do
 end
 
 defmodule TextDelta.Delta.Iterator do
-  @moduledoc """
-  This module is here only for backwards compatibility. Use
-  `TextDelta.Iterator` instead.
-  """
+  # Deprecated and to be removed in 2.0
+  @moduledoc false
 
   @type deltas :: {Delta.t, Delta.t}
   @type skip_type :: :insert | :delete | nil

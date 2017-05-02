@@ -1,3 +1,5 @@
+# Backwards compatibility layer tests. To be removed in 2.0.
+
 defmodule TextDelta.BCTest do
   use ExUnit.Case
 
