@@ -28,8 +28,8 @@ defmodule TextDelta.Composition do
       %TextDelta{ops: [%{insert: "FooBar"}]}
   """
   @spec compose(TextDelta.t, TextDelta.t) :: TextDelta.t
-  def compose(%TextDelta{ops: ops_a}, %TextDelta{ops: ops_b}) do
-    {ops_a, ops_b}
+  def compose(first, second) do
+    {TextDelta.operations(first), TextDelta.operations(second)}
     |> iterate()
     |> do_compose(TextDelta.new())
     |> TextDelta.trim()

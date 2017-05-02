@@ -12,11 +12,6 @@ defmodule TextDelta.Transformation do
 
     S ○ Oa ○ transform(Ob, Oa) = S ○ Ob ○ transform(Oa, Ob)
 
-  Transformation also takes a third `t:TextDelta.Transformation.priority`
-  argument that indicates which operation came later. This is important when
-  deciding whether it is acceptable to break up insert operations from one
-  operation or the other.
-
   There is a great article writte on [Operational Transformation][ot1] that
   author of this library used. It is called [Understanding and Applying
   Operational Transformation][ot2].
@@ -29,17 +24,21 @@ defmodule TextDelta.Transformation do
   alias TextDelta.{Operation, Attributes, Iterator}
 
   @typedoc """
-  Atom representing transformation priority. Should we prioritise left or right
-  side?
+  Atom representing transformation priority. Which delta came first?
   """
   @type priority :: :left | :right
 
   @doc """
-  Transforms given `delta_b` against given `delta_a`.
+  Transforms `right` delta against the `left` one.
+
+  The function also takes a third `t:TextDelta.Transformation.priority/0`
+  argument that indicates which delta came first. This is important when
+  deciding whether it is acceptable to break up insert operations from one
+  delta or the other.
   """
   @spec transform(TextDelta.t, TextDelta.t, priority) :: TextDelta.t
-  def transform(%TextDelta{ops: ops_a}, %TextDelta{ops: ops_b}, priority) do
-    {ops_a, ops_b}
+  def transform(left, right, priority) do
+    {TextDelta.operations(left), TextDelta.operations(right)}
     |> iterate()
     |> do_transform(priority, TextDelta.new())
     |> TextDelta.trim()

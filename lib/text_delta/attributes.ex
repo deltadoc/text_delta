@@ -43,28 +43,31 @@ defmodule TextDelta.Attributes do
       %{}
   """
   @spec compose(t, t, boolean) :: t
-  def compose(attrs_a, attrs_b, keep_nils \\ false)
+  def compose(first, second, keep_nils \\ false)
 
-  def compose(nil, attrs_b, keep_nils) do
-    compose(%{}, attrs_b, keep_nils)
+  def compose(nil, second, keep_nils) do
+    compose(%{}, second, keep_nils)
   end
 
-  def compose(attrs_a, nil, keep_nils) do
-    compose(attrs_a, %{}, keep_nils)
+  def compose(first, nil, keep_nils) do
+    compose(first, %{}, keep_nils)
   end
 
-  def compose(attrs_a, attrs_b, true) do
-    Map.merge(attrs_a, attrs_b)
+  def compose(first, second, true) do
+    Map.merge(first, second)
   end
 
-  def compose(attrs_a, attrs_b, false) do
-    attrs_a
-    |> Map.merge(attrs_b)
+  def compose(first, second, false) do
+    first
+    |> Map.merge(second)
     |> remove_nils()
   end
 
   @doc """
-  Transforms given attribute set against another.
+  Transforms `right` attribute set against the `left` one.
+
+  The function also takes a third `t:TextDelta.Attributes.priority/0`
+  argument that indicates which set came first.
 
   This function is used by `TextDelta.transform/3`.
 
@@ -75,22 +78,22 @@ defmodule TextDelta.Attributes do
       %{bold: true}
   """
   @spec transform(t, t, priority) :: t
-  def transform(attrs_a, attrs_b, priority)
+  def transform(left, right, priority)
 
-  def transform(nil, attrs_b, priority) do
-    transform(%{}, attrs_b, priority)
+  def transform(nil, right, priority) do
+    transform(%{}, right, priority)
   end
 
-  def transform(attrs_a, nil, priority) do
-    transform(attrs_a, %{}, priority)
+  def transform(left, nil, priority) do
+    transform(left, %{}, priority)
   end
 
-  def transform(_, attrs_b, :right) do
-    attrs_b
+  def transform(_, right, :right) do
+    right
   end
 
-  def transform(attrs_a, attrs_b, :left) do
-    remove_duplicates(attrs_b, attrs_a)
+  def transform(left, right, :left) do
+    remove_duplicates(right, left)
   end
 
   defp remove_nils(result) do

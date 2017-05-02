@@ -53,7 +53,7 @@ defmodule TextDelta do
   defstruct ops: []
 
   @typedoc """
-  Delta is a list of `t:TextDelta.Operation.retain/0`,
+  Delta is a set of `t:TextDelta.Operation.retain/0`,
   `t:TextDelta.Operation.insert/0`, or `t:TextDelta.Operation.delete/0`
   operations.
   """
@@ -73,7 +73,7 @@ defmodule TextDelta do
       iex> TextDelta.new()
       %TextDelta{ops: []}
 
-  You can also pass list of operations using optional argument:
+  You can also pass set of operations using optional argument:
 
       iex> TextDelta.new([TextDelta.Operation.insert("hello")])
       %TextDelta{ops: [%{insert: "hello"}]}
@@ -84,7 +84,7 @@ defmodule TextDelta do
   def new(ops), do: Enum.reduce(ops, new(), &append(&2, &1))
 
   @doc """
-  Creates and appends new insert operation to the delta.
+  Creates and appends new `insert` operation to the delta.
 
   Same as with underlying `TextDelta.Operation.insert/2` function, attributes
   are optional.
@@ -103,7 +103,7 @@ defmodule TextDelta do
   end
 
   @doc """
-  Creates and appends new retain operation to the delta.
+  Creates and appends new `retain` operation to the delta.
 
   Same as with underlying `TextDelta.Operation.retain/2` function, attributes
   are optional.
@@ -122,7 +122,7 @@ defmodule TextDelta do
   end
 
   @doc """
-  Creates and appends new delete operation to the delta.
+  Creates and appends new `delete` operation to the delta.
 
   `TextDelta.append/2` is used undert the hood to add operation to the delta
   after construction. So all `append` rules apply.
@@ -180,16 +180,16 @@ defmodule TextDelta do
   @spec trim(t) :: t
   def trim(delta)
   def trim(%TextDelta{ops: []} = empty), do: empty
-  def trim(%TextDelta{ops: ops}) do
-    last_operation = List.last(ops)
+  def trim(delta) do
+    last_operation = List.last(delta.ops)
     case Operation.trimmable?(last_operation) do
       true ->
-        ops
+        delta.ops
         |> Enum.slice(0..-2)
         |> wrap()
         |> trim()
       false ->
-        wrap(ops)
+        delta
     end
   end
 
@@ -218,7 +218,7 @@ defmodule TextDelta do
   end
 
   @doc """
-  Returns list of operations of a given delta.
+  Returns set of operations for a given delta.
 
   ## Example
 
@@ -226,7 +226,7 @@ defmodule TextDelta do
       [%{delete: 5}, %{retain: 3}]
   """
   @spec operations(t) :: [Operation.t]
-  def operations(%TextDelta{ops: ops}), do: ops
+  def operations(delta), do: delta.ops
 
   defp compact(ops, %{insert: ""}) do
     ops
