@@ -156,18 +156,16 @@ defmodule TextDelta do
       %TextDelta{ops: [%{insert: "hello"}]}
   """
   @spec append(t, Operation.t) :: t
-  def append(delta, op)
-  def append(%TextDelta{ops: []}, op), do: wrap(compact([], op))
-  def append(%TextDelta{ops: ops}, op) do
-    ops
+  def append(delta, op) do
+    delta.ops
     |> Enum.reverse()
     |> compact(op)
     |> Enum.reverse()
     |> wrap()
   end
 
-  defdelegate compose(delta_a, delta_b), to: Composition
-  defdelegate transform(delta_a, delta_b, priority), to: Transformation
+  defdelegate compose(first, second), to: Composition
+  defdelegate transform(left, right, priority), to: Transformation
 
   @doc """
   Trims trailing retains from the end of a given delta.
