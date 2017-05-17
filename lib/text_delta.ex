@@ -48,7 +48,11 @@ defmodule TextDelta do
   [quill]: https://quilljs.com
   """
 
-  alias TextDelta.{Operation, Attributes, Composition, Transformation}
+  alias TextDelta.{Operation,
+                   Attributes,
+                   Composition,
+                   Transformation,
+                   Application}
 
   defstruct ops: []
 
@@ -166,6 +170,8 @@ defmodule TextDelta do
 
   defdelegate compose(first, second), to: Composition
   defdelegate transform(left, right, priority), to: Transformation
+  defdelegate apply(document, delta), to: Application
+  defdelegate apply!(document, delta), to: Application
 
   @doc """
   Trims trailing retains from the end of a given delta.
