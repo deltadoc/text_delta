@@ -5,7 +5,7 @@ defmodule TextDelta.ApplicationTest do
 
   doctest TextDelta.Application
 
-  property "document modifications always result in a proper document" do
+  property "state modifications always result in a valid document state" do
     forall document <- document() do
       forall delta <- document_delta(document) do
         new_document = TextDelta.apply!(document, delta)
@@ -15,71 +15,71 @@ defmodule TextDelta.ApplicationTest do
     end
   end
 
-  @document TextDelta.insert(TextDelta.new(), "test")
+  @state TextDelta.insert(TextDelta.new(), "test")
 
   describe "apply" do
-    test "insert" do
+    test "insert delta" do
       delta =
         TextDelta.new()
         |> TextDelta.insert("hi")
-      assert TextDelta.apply(@document, delta) ==
-        {:ok, TextDelta.compose(@document, delta)}
+      assert TextDelta.apply(@state, delta) ==
+        {:ok, TextDelta.compose(@state, delta)}
     end
 
-    test "insert outside document length" do
+    test "insert delta outside original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.insert("this is a ")
-      assert TextDelta.apply(@document, delta) ==
-        {:ok, TextDelta.compose(@document, delta)}
+      assert TextDelta.apply(@state, delta) ==
+        {:ok, TextDelta.compose(@state, delta)}
     end
 
-    test "remove within document length" do
+    test "remove delta within original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.delete(3)
-      assert TextDelta.apply(@document, delta) ==
-        {:ok, TextDelta.compose(@document, delta)}
+      assert TextDelta.apply(@state, delta) ==
+        {:ok, TextDelta.compose(@state, delta)}
     end
 
-    test "remove outside document length" do
+    test "remove delta outside original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.delete(5)
-      assert TextDelta.apply(@document, delta) == {:error, :length_mismatch}
+      assert TextDelta.apply(@state, delta) == {:error, :length_mismatch}
     end
 
-    test "retain within document length" do
+    test "retain delta within original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.retain(3)
-      assert TextDelta.apply(@document, delta) ==
-        {:ok, TextDelta.compose(@document, delta)}
+      assert TextDelta.apply(@state, delta) ==
+        {:ok, TextDelta.compose(@state, delta)}
     end
 
-    test "retain outside document length" do
+    test "retain delta outside original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.retain(5)
-      assert TextDelta.apply(@document, delta) == {:error, :length_mismatch}
+      assert TextDelta.apply(@state, delta) == {:error, :length_mismatch}
     end
   end
 
   describe "apply!" do
-    test "insert" do
+    test "insert delta" do
       delta =
         TextDelta.new()
         |> TextDelta.insert("hi")
-      assert TextDelta.apply!(@document, delta) ==
-        TextDelta.compose(@document, delta)
+      assert TextDelta.apply!(@state, delta) ==
+        TextDelta.compose(@state, delta)
     end
 
-    test "retain outside document length" do
+    test "retain delta outside original text length" do
       delta =
         TextDelta.new()
         |> TextDelta.retain(5)
       assert_raise RuntimeError, fn ->
-        TextDelta.apply!(@document, delta)
+        TextDelta.apply!(@state, delta)
       end
     end
   end
