@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+  - `&TextDelta.apply/2` and `&TextDelta.apply!/2`
+
+### Changed
+  - Text state is now represented with `TextDelta.state` type rather than
+    `TextDelta.document` throughout the codebase. `TextDelta.document` is still
+    there in form of an alias for `TextDelta.state`.
 
 ## [1.1.0] - 2017-05-02
 ### Added
