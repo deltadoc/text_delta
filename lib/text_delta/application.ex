@@ -1,15 +1,14 @@
 defmodule TextDelta.Application do
   @moduledoc """
-  The application of a delta onto a document state.
+  The application of a delta onto a text state.
 
-  Text document is always represented as a set of
-  `t:TextDelta.Operation.insert/0` operations. This means that any application
-  should always result in a set of `insert` operations or produce an error
-  tuple.
+  Text state is always represented as a set of `t:TextDelta.Operation.insert/0`
+  operations. This means that any application should always result in a set of
+  `insert` operations or produce an error tuple.
 
   In simpler terms this means that it is not possible to apply delta, which
   combined length of `retain` and `delete` operations is longer than the length
-  of original document. This situation will always result in `:length_mismatch`.
+  of original text. This situation will always result in `:length_mismatch`.
   """
 
   @typedoc """
@@ -21,15 +20,15 @@ defmodule TextDelta.Application do
   Result of an application.
 
   An ok/error tuple. Represents either a successful application in form of
-  `{:ok, new_document}` or an error in form of `{:error, reason}`.
+  `{:ok, new_state}` or an error in form of `{:error, reason}`.
   """
-  @type result :: {:ok, TextDelta.document}
+  @type result :: {:ok, TextDelta.state}
                 | {:error, error_reason}
 
   @doc """
-  Applies given delta to a particular document, resulting in a new document.
+  Applies given delta to a particular text state, resulting in a new state.
 
-  Document is a set of `t:TextDelta.Operation.insert/0` operations. If
+  Text state is a set of `t:TextDelta.Operation.insert/0` operations. If
   applying delta results in anything but a set of `insert` operations, `:error`
   tuple is returned instead.
 
@@ -49,33 +48,33 @@ defmodule TextDelta.Application do
       iex> TextDelta.apply(doc, TextDelta.delete(TextDelta.new(), 5))
       {:error, :length_mismatch}
   """
-  @spec apply(TextDelta.document, TextDelta.t) :: result
-  def apply(document, delta) do
-    case delta_within_document_length?(delta, document) do
+  @spec apply(TextDelta.state, TextDelta.t) :: result
+  def apply(state, delta) do
+    case delta_within_text_length?(delta, state) do
       true ->
-        {:ok, TextDelta.compose(document, delta)}
+        {:ok, TextDelta.compose(state, delta)}
       false ->
         {:error, :length_mismatch}
     end
   end
 
   @doc """
-  Applies given delta to a particular document, resulting in a new document.
+  Applies given delta to a particular text state, resulting in a new state.
 
   Equivalent to `&TextDelta.Application.apply/2`, but instead of returning
-  ok/error tuples returns a new document or raises a `RuntimeError`.
+  ok/error tuples returns a new state or raises a `RuntimeError`.
   """
-  @spec apply!(TextDelta.document, TextDelta.t) :: TextDelta.document
-  def apply!(document, delta) do
-    case __MODULE__.apply(document, delta) do
+  @spec apply!(TextDelta.state, TextDelta.t) :: TextDelta.state
+  def apply!(state, delta) do
+    case __MODULE__.apply(state, delta) do
       {:ok, new_state} ->
         new_state
       {:error, reason} ->
-        raise "Can not apply delta to document: #{Atom.to_string(reason)}"
+        raise "Can not apply delta to state: #{Atom.to_string(reason)}"
     end
   end
 
-  defp delta_within_document_length?(delta, document) do
-    TextDelta.length(document) >= TextDelta.length(delta, [:retain, :delete])
+  defp delta_within_text_length?(delta, state) do
+    TextDelta.length(state) >= TextDelta.length(delta, [:retain, :delete])
   end
 end

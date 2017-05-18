@@ -1,24 +1,24 @@
 defmodule TextDelta do
   @moduledoc """
-  Delta is a format used to describe documents and changes.
+  Delta is a format used to describe text states and changes.
 
-  Delta can describe any rich text changes or a rich document itself, preserving
-  all the formatting.
+  Delta can describe any rich text changes or a rich text itself, preserving all
+  the formatting.
 
   At the baseline level, delta is an array of operations (constructed via
   `TextDelta.Operation`). Operations can be either
   `t:TextDelta.Operation.insert/0`, `t:TextDelta.Operation.retain/0` or
   `t:TextDelta.Operation.delete/0`. None of the operations contain index,
-  meaning that delta aways describes document or a change staring from the very
+  meaning that delta aways describes text or a change staring from the very
   beginning.
 
-  Delta can describe both changes to and documents themselves. We can think of a
-  document as an artefact of all the changes applied to it. This way, newly
-  imported document can be thinked of as simply a sequence of `insert`s applied
-  to an empty document.
+  Delta can describe both changes to and text states themselves. We can think of
+  a document as an artefact of all the changes applied to it. This way, newly
+  imported documents can be thinked of as a sequence of `insert`s applied to an
+  empty text.
 
-  Deltas are composable. This means that a document delta can be composed with
-  another delta for that document, resulting in a shorter, optimized delta.
+  Deltas are composable. This means that a text delta can be composed with
+  another delta for that text, resulting in a shorter, optimized version.
 
   Deltas are also transformable. This attribute of deltas is what enables
   [Operational Transformation][ot] - a way to transform one operation against
@@ -64,10 +64,15 @@ defmodule TextDelta do
   @type t :: %TextDelta{ops: [Operation.t]}
 
   @typedoc """
-  A document represented as delta. Any rich document can be represented as a set
+  A text state represented as delta. Any text state can be represented as a set
   of `t:TextDelta.Operation.insert/0` operations.
   """
-  @type document :: %TextDelta{ops: [Operation.insert]}
+  @type state :: %TextDelta{ops: [Operation.insert]}
+
+  @typedoc """
+  Alias to `t:TextDelta.state/0`.
+  """
+  @type document :: state
 
   @doc """
   Creates new delta.
@@ -170,8 +175,8 @@ defmodule TextDelta do
 
   defdelegate compose(first, second), to: Composition
   defdelegate transform(left, right, priority), to: Transformation
-  defdelegate apply(document, delta), to: Application
-  defdelegate apply!(document, delta), to: Application
+  defdelegate apply(state, delta), to: Application
+  defdelegate apply!(state, delta), to: Application
 
   @doc """
   Trims trailing retains from the end of a given delta.

@@ -24,8 +24,8 @@ defmodule TextDelta.Operation do
 
   @typedoc """
   Insert operation represents an intention to add a text or an embedded element
-  to a document. Text additions are represented with binary strings and embedded
-  elements are represented with either an integer or an object.
+  to a text state. Text additions are represented with binary strings and
+  embedded elements are represented with either an integer or an object.
 
   Insert also allows us to attach attributes to the element being inserted.
   """
@@ -34,7 +34,7 @@ defmodule TextDelta.Operation do
 
   @typedoc """
   Retain operation represents an intention to keep a sequence of characters
-  unchanged in the document. It is always a number and it is always positive.
+  unchanged in the text. It is always a number and it is always positive.
 
   In addition to indicating preservation of existing text, retain also allows us
   to change formatting of retained text or element via optional attributes.
@@ -44,7 +44,7 @@ defmodule TextDelta.Operation do
 
   @typedoc """
   Delete operation represents an intention to delete a sequence of characters
-  from the document. It is always a number and it is always positive.
+  from the text. It is always a number and it is always positive.
   """
   @type delete :: %{delete: non_neg_integer}
 
@@ -75,7 +75,7 @@ defmodule TextDelta.Operation do
 
   ## Examples
 
-  To indicate that we need to insert a text "hello" into the document, we can
+  To indicate that we need to insert a text "hello" into the text, we can
   use following insert:
 
       iex> TextDelta.Operation.insert("hello")
