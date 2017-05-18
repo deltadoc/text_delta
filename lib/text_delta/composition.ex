@@ -1,14 +1,14 @@
 defmodule TextDelta.Composition do
   @moduledoc """
-  The composition of two non-concurrent operations into a single operation.
+  The composition of two non-concurrent deltas into a single delta.
 
-  The operations are composed in such a way that the resulting operation has the
-  same effect on document state as applying one operation and then the other:
+  The deltas are composed in such a way that the resulting delta has the same
+  effect on text state as applying one delta and then the other:
 
     S ○ compose(Oa, Ob) = S ○ Oa ○ Ob
 
-  In more simple terms, composition allows you to take many operations and
-  transform them into one of equal effect. When used together with Operational
+  In more simple terms, composition allows you to take many deltas and transform
+  them into one of equal effect. When used together with Operational
   Transformation that allows to reduce system overhead when tracking non-synced
   changes.
   """
@@ -16,7 +16,7 @@ defmodule TextDelta.Composition do
   alias TextDelta.{Operation, Attributes, Iterator}
 
   @doc """
-  Composes two operations into a single equivalent operation.
+  Composes two deltas into a single equivalent delta.
 
   ## Example
 

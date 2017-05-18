@@ -1,14 +1,13 @@
 defmodule TextDelta.Transformation do
   @moduledoc """
-  The transformation of two concurrent operations such that they satisfy the
+  The transformation of two concurrent deltas such that they satisfy the
   convergence properties of Operational Transformation.
 
   Transformation allows optimistic conflict resolution in concurrent editing.
-  Given an operation A that occurred at the same time as operation B against the
-  same text state, we can transform the components of operation A such that the
-  state of the text after applying operation A and then operation B is the same
-  as after applying operation B and then the transformation of operation A
-  against operation B:
+  Given a delta A that occurred at the same time as delta B against the same
+  text state, we can transform the operations of delta A such that the state
+  of the text after applying delta A and then delta B is the same as after
+  applying delta B and then the transformation of delta A against delta B:
 
     S ○ Oa ○ transform(Ob, Oa) = S ○ Ob ○ transform(Oa, Ob)
 
@@ -33,8 +32,7 @@ defmodule TextDelta.Transformation do
 
   The function also takes a third `t:TextDelta.Transformation.priority/0`
   argument that indicates which delta came first. This is important when
-  deciding whether it is acceptable to break up insert operations from one
-  delta or the other.
+  doing conflict resolution.
   """
   @spec transform(TextDelta.t, TextDelta.t, priority) :: TextDelta.t
   def transform(left, right, priority) do

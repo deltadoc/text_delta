@@ -1,6 +1,6 @@
 defmodule TextDelta.Operation do
   @moduledoc """
-  Operations represent a smallest possible change applicable to the document.
+  Operations represent a smallest possible change applicable to a text.
 
   In case of text, there are exactly 3 possible operations we might want to
   perform:

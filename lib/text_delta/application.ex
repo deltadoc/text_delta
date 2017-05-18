@@ -1,7 +1,6 @@
 defmodule TextDelta.Application do
   @moduledoc """
-  Application provides ability to apply given text `t:TextDelta.t/0` to the
-  `t:TextDelta.document/0`.
+  The application of a delta onto a document state.
 
   Text document is always represented as a set of
   `t:TextDelta.Operation.insert/0` operations. This means that any application
