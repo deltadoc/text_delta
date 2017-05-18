@@ -8,13 +8,14 @@ defmodule TextDelta.Application do
 
   In simpler terms this means that it is not possible to apply delta, which
   combined length of `retain` and `delete` operations is longer than the length
-  of original text. This situation will always result in `:length_mismatch`.
+  of original text. This situation will always result in `:length_mismatch`
+  error.
   """
 
   @typedoc """
-  Atom representing reason for error.
+  Reason for an application error.
   """
-  @type error_reason :: atom
+  @type error_reason :: :length_mismatch
 
   @typedoc """
   Result of an application.
