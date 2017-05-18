@@ -6,23 +6,9 @@ defmodule TextDeltaTest do
   alias TextDelta.Operation
   doctest TextDelta
 
-  describe "deltas compact" do
-    property "consecutive inserts with same attributes" do
-      forall ops <- list(bitstring_insert()) do
-        delta = TextDelta.new(ops)
-        ensure consecutive_ops_with_same_attrs(delta) == 0
-      end
-    end
-
-    property "consecutive retains with same attributes" do
-      forall ops <- list(retain()) do
-        delta = TextDelta.new(ops)
-        ensure consecutive_ops_with_same_attrs(delta) == 0
-      end
-    end
-
-    property "consecutive deletes" do
-      forall ops <- list(delete()) do
+  describe "compaction" do
+    property "consecutive operations with same attributes compact" do
+      forall ops <- list(oneof([bitstring_insert(), retain(), delete()])) do
         delta = TextDelta.new(ops)
         ensure consecutive_ops_with_same_attrs(delta) == 0
       end
@@ -32,7 +18,7 @@ defmodule TextDeltaTest do
     defp consecutive_ops_with_same_attrs(delta) do
       delta
       |> TextDelta.operations()
-      |> Enum.chunk_by(&Map.get(&1, :attributes))
+      |> Enum.chunk_by(&({Operation.type(&1), Map.get(&1, :attributes)}))
       |> Enum.filter(&(Enum.count(&1) > 1))
       |> Enum.count()
     end
@@ -43,7 +29,7 @@ defmodule TextDeltaTest do
       assert ops(TextDelta.new()) == []
     end
 
-    test "empty operations" do
+    test "empty delta using zero-operations" do
       delta =
         TextDelta.new()
         |> TextDelta.insert("")
@@ -116,7 +102,7 @@ defmodule TextDeltaTest do
       assert ops(TextDelta.append(%TextDelta{}, op)) == [%{insert: "a"}]
     end
 
-    test "no operation" do
+    test "noop" do
       delta = TextDelta.new()
       assert ops(TextDelta.append(delta, nil)) == []
       assert ops(TextDelta.append(delta, [])) == []
@@ -177,20 +163,6 @@ defmodule TextDeltaTest do
         %{retain: 3, attributes: %{color: "red"}},
         %{retain: 2, attributes: %{color: "blue"}}]
     end
-
-    test "an edge-case with potential duplication of inserts" do
-      delta =
-        TextDelta.new()
-        |> TextDelta.insert("collaborative")
-        |> TextDelta.retain(1)
-        |> TextDelta.delete(1)
-        |> TextDelta.insert("a")
-      assert ops(delta) == [
-        %{insert: "collaborative"},
-        %{retain: 1},
-        %{insert: "a"},
-        %{delete: 1}]
-    end
   end
 
   describe "trim" do
@@ -213,6 +185,22 @@ defmodule TextDeltaTest do
         |> TextDelta.retain(3)
         |> TextDelta.insert("a")
       assert ops(TextDelta.trim(delta)) == [%{retain: 3}, %{insert: "a"}]
+    end
+  end
+
+  describe "an edge case of" do
+    test "potential duplication of inserts" do
+      delta =
+        TextDelta.new()
+        |> TextDelta.insert("collaborative")
+        |> TextDelta.retain(1)
+        |> TextDelta.delete(1)
+        |> TextDelta.insert("a")
+      assert ops(delta) == [
+        %{insert: "collaborative"},
+        %{retain: 1},
+        %{insert: "a"},
+        %{delete: 1}]
     end
   end
 
