@@ -237,29 +237,12 @@ defmodule TextDelta do
   @spec operations(t) :: [Operation.t]
   def operations(delta), do: delta.ops
 
-  defp compact(ops, %{insert: ""}) do
-    ops
-  end
-
-  defp compact(ops, %{retain: 0}) do
-    ops
-  end
-
-  defp compact(ops, %{delete: 0}) do
-    ops
-  end
-
-  defp compact(ops, []) do
-    ops
-  end
-
-  defp compact(ops, nil) do
-    ops
-  end
-
-  defp compact([], new_op) do
-    [new_op]
-  end
+  defp compact(ops, %{insert: ""}), do: ops
+  defp compact(ops, %{retain: 0}), do: ops
+  defp compact(ops, %{delete: 0}), do: ops
+  defp compact(ops, []), do: ops
+  defp compact(ops, nil), do: ops
+  defp compact([], new_op), do: [new_op]
 
   defp compact([%{delete: _} = del | ops_remainder], %{insert: _} = ins) do
     compact(compact(ops_remainder, ins), del)
