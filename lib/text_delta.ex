@@ -216,7 +216,7 @@ defmodule TextDelta do
   @spec length(t, [Operation.type]) :: non_neg_integer
   def length(delta, op_types \\ [:insert, :retain, :delete]) do
     delta.ops
-    |> Enum.filter(&(Enum.member?(op_types, Operation.type(&1))))
+    |> Enum.filter(&(Operation.type(&1) in op_types))
     |> Enum.map(&Operation.length/1)
     |> Enum.sum()
   end
