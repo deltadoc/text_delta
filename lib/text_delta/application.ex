@@ -65,7 +65,7 @@ defmodule TextDelta.Application do
   Equivalent to `&TextDelta.Application.apply/2`, but instead of returning
   ok/error tuples returns a new state or raises a `RuntimeError`.
   """
-  @spec apply!(TextDelta.state, TextDelta.t) :: TextDelta.state
+  @spec apply!(TextDelta.state, TextDelta.t) :: TextDelta.state | no_return
   def apply!(state, delta) do
     case __MODULE__.apply(state, delta) do
       {:ok, new_state} ->
