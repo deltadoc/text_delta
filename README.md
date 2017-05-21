@@ -73,8 +73,8 @@ This library is test-driven. In order to run tests, execute:
 $> mix test
 ```
 
-If this command fails, it is most likely due to that you don't have EQC
-installed, try:
+If this command fails, it is most likely due to that you don't have
+[QuickCheck](http://www.quviq.com/downloads/) installed. If so, simply try:
 
 ```bash
 $> mix eqc.install --mini
