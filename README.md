@@ -25,30 +25,30 @@ article](http://www.codecommit.com/blog/java/understanding-and-applying-operatio
 This library is heavily influenced by two other libraries and wouldn't be
 possible without them:
 
-1. [`quilljs/delta`](https://github.com/quilljs/delta) - original JS library
-   entire public API of `text_delta` is based upod. `text_delta` was created to
-   provide a server counter-part to frontend Delta's.
+1. [`quilljs/delta`](https://github.com/quilljs/delta) - original JS library for
+   rich text OT. Entire public API of `text_delta` is based upod it.
 2. [`jclem/ot_ex`](https://github.com/jclem/ot_ex) - implementation of this
-   library is heavily influenced by `ot_ex` and though this library pursues
-   slightly different avenue of OT, it wouldn't be possible without it.
+   library is heavily influenced by `ot_ex`. Though this library pursues
+   slightly different design goals than `ot_ex`, it wouldn't be possible without
+   it.
 
-## Differences with `ot_ex`
+## Differences from `ot_ex`
 
-If you are searching for a library matching Quill's Delta format, but on the
-server side, this library is pretty much a direct match. If, however, you're
-looking for a more general Operational Transformation library, you should
-consider both this library and its alternative - `ot_ex`. Here are key
-differences from `ot_ex` that might help you make the decision:
+If you are searching for a library matching Quill's Delta format on the server
+side, this library is pretty much a direct match. If, however, you're looking
+for a more general Operational Transformation library, you should
+consider both `text_delta` and `ot_ex`. Here are the key differences from
+`ot_ex` that might help you make the decision:
 
-1. `text_delta` is heavily based on Quill Delta, including the public API and
-   the delta format itself. This results in a more verbose format than what
-   `ot_ex` uses.
+1. `text_delta` is heavily based on Quill Delta. That includes the public API
+    and the delta format itself. This results in a more verbose format than
+    `ot_ex`.
 2. `ot_ex` uses fully reversible operations format, while `text_delta` is a
-   one-way. If reversibility is a must, `ot_ex` is the only option.
+   one-way. If reversibility is a must, `ot_ex` is your only option.
 3. `text_delta` allows arbitrary attributes to be attached to `insert` or
-   `retain` operations. This would allow you to transform rich text alongside
-   plain. With `ot_ex` you pretty much stuck with plain text format, which might
-   not be a big deal if your format of choice is something like Markdown.
+   `retain` operations. This allows you to transform rich text alongside plain.
+   With `ot_ex` you pretty much stuck with plain text format, which might not be
+   a big deal if your format of choice is something like Markdown.
 
 ## Installation
 
