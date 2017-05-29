@@ -1,6 +1,6 @@
 # TextDelta
 
-[![Build Status](https://travis-ci.org/everzet/text_delta.svg?branch=master)](https://travis-ci.org/everzet/text_delta)
+[![Build Status](https://travis-ci.org/deltadoc/text_delta.svg?branch=master)](https://travis-ci.org/deltadoc/text_delta)
 
 Elixir counter-part for the Quill.js [Delta](https://quilljs.com/docs/delta/)
 library. It provides a baseline for [Operational
