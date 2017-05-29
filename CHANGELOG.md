@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.2.0] - 2017-05-29
 ### Added
   - `&TextDelta.apply/2` and `&TextDelta.apply!/2`
 
 ### Changed
+  - Moved repository under `deltadoc` organisation.
   - Text state is now represented with `TextDelta.state` type rather than
     `TextDelta.document` throughout the codebase. `TextDelta.document` is still
     there in form of an alias for `TextDelta.state`.
@@ -53,7 +56,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Attributes support in `insert` and `retain`
   - Delta composition and transformation with attributes supported
 
-[Unreleased]: https://github.com/everzet/text_delta/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/everzet/text_delta/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/everzet/text_delta/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/everzet/text_delta/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/everzet/text_delta/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/everzet/text_delta/compare/v1.0.0...v1.0.1
