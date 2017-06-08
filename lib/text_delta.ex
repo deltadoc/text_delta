@@ -245,7 +245,9 @@ defmodule TextDelta do
   defp compact([], new_op), do: [new_op]
 
   defp compact([%{delete: _} = del | ops_remainder], %{insert: _} = ins) do
-    compact(compact(ops_remainder, ins), del)
+    ops_remainder
+    |> compact(ins)
+    |> compact(del)
   end
 
   defp compact([last_op | ops_remainder], new_op) do
