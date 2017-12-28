@@ -150,4 +150,22 @@ defmodule TextDelta.DocumentTest do
       assert lines == [{a_delta, %{}}, {b_delta, %{}}]
     end
   end
+
+  describe "lines!" do
+    test "proper document" do
+      delta =
+        TextDelta.new()
+        |> TextDelta.insert("hi")
+      assert TextDelta.lines!(delta) == [{delta, %{}}]
+    end
+
+    test "retain delta" do
+      delta =
+        TextDelta.new()
+        |> TextDelta.retain(5)
+      assert_raise RuntimeError, fn ->
+        TextDelta.lines!(delta)
+      end
+    end
+  end
 end
