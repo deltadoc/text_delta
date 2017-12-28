@@ -52,7 +52,8 @@ defmodule TextDelta do
                    Attributes,
                    Composition,
                    Transformation,
-                   Application}
+                   Application,
+                   Document}
 
   defstruct ops: []
 
@@ -177,6 +178,8 @@ defmodule TextDelta do
   defdelegate transform(left, right, priority), to: Transformation
   defdelegate apply(state, delta), to: Application
   defdelegate apply!(state, delta), to: Application
+  defdelegate lines(delta), to: Document
+  defdelegate lines!(delta), to: Document
 
   @doc """
   Trims trailing retains from the end of a given delta.
