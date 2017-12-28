@@ -11,7 +11,7 @@ defmodule TextDelta.Transformation do
 
     S ○ Oa ○ transform(Ob, Oa) = S ○ Ob ○ transform(Oa, Ob)
 
-  There is a great article writte on [Operational Transformation][ot1] that
+  There is a great article written on [Operational Transformation][ot1] that
   author of this library used. It is called [Understanding and Applying
   Operational Transformation][ot2].
 
