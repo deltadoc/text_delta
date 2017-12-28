@@ -5,14 +5,9 @@ defmodule TextDelta.Delta do
   # Deprecated and to be removed in 2.0
   @moduledoc false
 
-  alias TextDelta.{Operation, Attributes}
   alias TextDelta.Delta.{Transformation, Composition}
 
-  @type t :: [Operation.t]
-  @type document :: [Operation.insert]
-
   @doc false
-  @spec new([Operation.t]) :: t
   def new(ops \\ []) do
     ops
     |> TextDelta.new()
@@ -20,7 +15,6 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec insert(t, Operation.element, Attributes.t) :: t
   def insert(delta, el, attrs \\ %{}) do
     delta
     |> wrap()
@@ -29,7 +23,6 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec retain(t, non_neg_integer, Attributes.t) :: t
   def retain(delta, len, attrs \\ %{}) do
     delta
     |> wrap()
@@ -38,7 +31,6 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec delete(t, non_neg_integer) :: t
   def delete(delta, len) do
     delta
     |> wrap()
@@ -47,7 +39,6 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec append(t | nil, Operation.t) :: t
   def append(nil, op), do: append(new(), op)
   def append(delta, op) do
     delta
@@ -60,7 +51,6 @@ defmodule TextDelta.Delta do
   defdelegate transform(delta_a, delta_b, priority), to: Transformation
 
   @doc false
-  @spec trim(t) :: t
   def trim(delta) do
     delta
     |> wrap()
@@ -69,7 +59,6 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec length(t, [Operation.type]) :: non_neg_integer
   def length(delta, included_ops \\ [:insert, :retain, :delete]) do
     delta
     |> wrap()
@@ -77,11 +66,9 @@ defmodule TextDelta.Delta do
   end
 
   @doc false
-  @spec wrap(t) :: TextDelta.t
   def wrap(ops), do: TextDelta.new(ops)
 
   @doc false
-  @spec unwrap(TextDelta.t) :: t
   def unwrap(delta), do: TextDelta.operations(delta)
 end
 
@@ -92,7 +79,6 @@ defmodule TextDelta.Delta.Composition do
   alias TextDelta.Delta
 
   @doc false
-  @spec compose(Delta.t, Delta.t) :: Delta.t
   def compose(delta_a, delta_b) do
     delta_a
     |> Delta.wrap()
@@ -107,10 +93,7 @@ defmodule TextDelta.Delta.Transformation do
 
   alias TextDelta.Delta
 
-  @type priority :: :left | :right
-
   @doc false
-  @spec transform(Delta.t, Delta.t, priority) :: Delta.t
   def transform(delta_a, delta_b, priority) do
     delta_a
     |> Delta.wrap()
@@ -122,11 +105,6 @@ end
 defmodule TextDelta.Delta.Iterator do
   # Deprecated and to be removed in 2.0
   @moduledoc false
-
-  @type deltas :: {Delta.t, Delta.t}
-  @type skip_type :: :insert | :delete | nil
-  @type cycle :: {delta_split, delta_split}
-  @type delta_split :: {Operation.t | nil, Delta.t}
 
   defdelegate next(deltas, skip_type \\ nil), to: TextDelta.Iterator
 end
