@@ -66,7 +66,7 @@ defmodule TextDelta.Document do
   """
   @spec lines!(TextDelta.state) :: line_segments | no_return
   def lines!(doc) do
-    case __MODULE__.lines(doc) do
+    case lines(doc) do
       {:ok, lines} -> lines
       {:error, reason} ->
         raise "Can not get lines from document: #{Atom.to_string(reason)}"
