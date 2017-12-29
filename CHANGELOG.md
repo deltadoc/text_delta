@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.3.0] - 2017-12-29
 ### Added
   - `&TextDelta.lines/1` and `&TextDelta.lines!/1`
   - `&TextDelta.diff/2` and `&TextDelta.diff!/2`
@@ -59,7 +61,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Attributes support in `insert` and `retain`
   - Delta composition and transformation with attributes supported
 
-[Unreleased]: https://github.com/everzet/text_delta/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/everzet/text_delta/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/everzet/text_delta/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/everzet/text_delta/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/everzet/text_delta/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/everzet/text_delta/compare/v1.0.1...v1.0.2
