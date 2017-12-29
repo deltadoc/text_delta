@@ -53,7 +53,8 @@ defmodule TextDelta do
                    Composition,
                    Transformation,
                    Application,
-                   Document}
+                   Document,
+                   Difference}
 
   defstruct ops: []
 
@@ -180,6 +181,8 @@ defmodule TextDelta do
   defdelegate apply!(state, delta), to: Application
   defdelegate lines(delta), to: Document
   defdelegate lines!(delta), to: Document
+  defdelegate diff(first, second), to: Difference
+  defdelegate diff!(first, second), to: Difference
 
   @doc """
   Trims trailing retains from the end of a given delta.

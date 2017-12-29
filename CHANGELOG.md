@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
   - `&TextDelta.lines/1` and `&TextDelta.lines!/1`
+  - `&TextDelta.diff/2` and `&TextDelta.diff!/2`
 
 ## [1.2.0] - 2017-05-29
 ### Added

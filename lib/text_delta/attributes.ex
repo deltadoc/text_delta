@@ -63,6 +63,31 @@ defmodule TextDelta.Attributes do
     |> remove_nils()
   end
 
+ @doc """
+  Calculates and returns difference between two sets of attributes.
+
+  Given an initial set of attributes and the final one, this function will
+  generate an attribute set that is when composed with original one would yield
+  the final result.
+
+  ## Examples
+
+    iex> TextDelta.Attributes.diff(%{font: "arial", color: "blue"},
+    iex>                           %{color: "red"})
+    %{font: nil, color: "red"}
+  """
+  @spec diff(t, t) :: t
+  def diff(attrs_a, attrs_b)
+
+  def diff(nil, attrs_b), do: diff(%{}, attrs_b)
+  def diff(attrs_a, nil), do: diff(attrs_a, %{})
+
+  def diff(attrs_a, attrs_b) do
+    %{}
+    |> add_changes(attrs_a, attrs_b)
+    |> add_deletions(attrs_a, attrs_b)
+  end
+
   @doc """
   Transforms `right` attribute set against the `left` one.
 
@@ -94,6 +119,21 @@ defmodule TextDelta.Attributes do
 
   def transform(left, right, :left) do
     remove_duplicates(right, left)
+  end
+
+  defp add_changes(result, from, to) do
+    to
+    |> Enum.filter(fn {key, val} -> Map.get(from, key) != val end)
+    |> Enum.into(%{})
+    |> Map.merge(result)
+  end
+
+  defp add_deletions(result, from, to) do
+    from
+    |> Enum.filter(fn {key, _} -> not Map.has_key?(to, key) end)
+    |> Enum.map(fn {key, _} -> {key, nil} end)
+    |> Enum.into(%{})
+    |> Map.merge(result)
   end
 
   defp remove_nils(result) do

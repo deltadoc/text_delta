@@ -85,4 +85,32 @@ defmodule TextDelta.AttributesTest do
       assert Attributes.transform(attrs_a, attrs_b, :right) == attrs_b
     end
   end
+
+  describe "diff" do
+    @attributes %{bold: true, color: "red"}
+
+    test "nothing with attributes" do
+      assert Attributes.diff(%{}, @attributes) == @attributes
+    end
+
+    test "attributes with nothing" do
+      assert Attributes.diff(@attributes, %{}) == %{bold: nil, color: nil}
+    end
+
+    test "same attributes" do
+      assert Attributes.diff(@attributes, @attributes) == %{}
+    end
+
+    test "with added attribute" do
+      assert Attributes.diff(@attributes, %{bold: true, color: "red", italic: true}) == %{italic: true}
+    end
+
+    test "with removed attribute" do
+      assert Attributes.diff(@attributes, %{bold: true}) == %{color: nil}
+    end
+
+    test "with overwriten attribute" do
+      assert Attributes.diff(@attributes, %{bold: true, color: "blue"}) == %{color: "blue"}
+    end
+  end
 end
