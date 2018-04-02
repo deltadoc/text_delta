@@ -23,8 +23,9 @@ defmodule TextDelta.Application do
   An ok/error tuple. Represents either a successful application in form of
   `{:ok, new_state}` or an error in form of `{:error, reason}`.
   """
-  @type result :: {:ok, TextDelta.state}
-                | {:error, error_reason}
+  @type result ::
+          {:ok, TextDelta.state()}
+          | {:error, error_reason}
 
   @doc """
   Applies given delta to a particular text state, resulting in a new state.
@@ -49,11 +50,12 @@ defmodule TextDelta.Application do
       iex> TextDelta.apply(doc, TextDelta.delete(TextDelta.new(), 5))
       {:error, :length_mismatch}
   """
-  @spec apply(TextDelta.state, TextDelta.t) :: result
+  @spec apply(TextDelta.state(), TextDelta.t()) :: result
   def apply(state, delta) do
     case delta_within_text_length?(delta, state) do
       true ->
         {:ok, TextDelta.compose(state, delta)}
+
       false ->
         {:error, :length_mismatch}
     end
@@ -65,11 +67,13 @@ defmodule TextDelta.Application do
   Equivalent to `&TextDelta.Application.apply/2`, but instead of returning
   ok/error tuples returns a new state or raises a `RuntimeError`.
   """
-  @spec apply!(TextDelta.state, TextDelta.t) :: TextDelta.state | no_return
+  @spec apply!(TextDelta.state(), TextDelta.t()) ::
+          TextDelta.state() | no_return
   def apply!(state, delta) do
     case __MODULE__.apply(state, delta) do
       {:ok, new_state} ->
         new_state
+
       {:error, reason} ->
         raise "Can not apply delta to state: #{Atom.to_string(reason)}"
     end

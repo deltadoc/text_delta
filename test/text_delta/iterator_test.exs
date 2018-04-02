@@ -17,37 +17,41 @@ defmodule TextDelta.IteratorTest do
     test "operations of equal length" do
       ops_a = [Operation.insert("test")]
       ops_b = [Operation.retain(4)]
+
       assert Iterator.next({ops_a, ops_b}) == {
-        {%{insert: "test"}, []},
-        {%{retain: 4}, []}
-      }
+               {%{insert: "test"}, []},
+               {%{retain: 4}, []}
+             }
     end
 
     test "operations of different length (>)" do
       ops_a = [Operation.insert("test")]
       ops_b = [Operation.retain(2)]
+
       assert Iterator.next({ops_a, ops_b}) == {
-        {%{insert: "te"}, [%{insert: "st"}]},
-        {%{retain: 2}, []}
-      }
+               {%{insert: "te"}, [%{insert: "st"}]},
+               {%{retain: 2}, []}
+             }
     end
 
     test "operations of different length (>) with skip" do
       ops_a = [Operation.insert("test")]
       ops_b = [Operation.retain(2)]
+
       assert Iterator.next({ops_a, ops_b}, :insert) == {
-        {%{insert: "test"}, []},
-        {%{retain: 2}, []}
-      }
+               {%{insert: "test"}, []},
+               {%{retain: 2}, []}
+             }
     end
 
     test "operations of different length (<)" do
       ops_a = [Operation.insert("test")]
       ops_b = [Operation.retain(6)]
+
       assert Iterator.next({ops_a, ops_b}) == {
-        {%{insert: "test"}, []},
-        {%{retain: 4}, [%{retain: 2}]}
-      }
+               {%{insert: "test"}, []},
+               {%{retain: 4}, [%{retain: 2}]}
+             }
     end
   end
 end

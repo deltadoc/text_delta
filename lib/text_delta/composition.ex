@@ -27,7 +27,7 @@ defmodule TextDelta.Composition do
       iex> TextDelta.compose(bar, foo)
       %TextDelta{ops: [%{insert: "FooBar"}]}
   """
-  @spec compose(TextDelta.t, TextDelta.t) :: TextDelta.t
+  @spec compose(TextDelta.t(), TextDelta.t()) :: TextDelta.t()
   def compose(first, second) do
     {TextDelta.operations(first), TextDelta.operations(second)}
     |> iterate()
@@ -47,66 +47,90 @@ defmodule TextDelta.Composition do
     List.foldl([op_a | remainder_a], result, &TextDelta.append(&2, &1))
   end
 
-  defp do_compose({{%{insert: _} = ins_a, remainder_a},
-                   {%{insert: _} = ins_b, remainder_b}}, result) do
+  defp do_compose(
+         {{%{insert: _} = ins_a, remainder_a},
+          {%{insert: _} = ins_b, remainder_b}},
+         result
+       ) do
     {[ins_a | remainder_a], remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, ins_b))
   end
 
-  defp do_compose({{%{insert: el_a} = ins, remainder_a},
-                   {%{retain: _} = ret, remainder_b}}, result) do
+  defp do_compose(
+         {{%{insert: el_a} = ins, remainder_a},
+          {%{retain: _} = ret, remainder_b}},
+         result
+       ) do
     insert = Operation.insert(el_a, compose_attributes(ins, ret))
+
     {remainder_a, remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, insert))
   end
 
-  defp do_compose({{%{insert: _}, remainder_a},
-                   {%{delete: _}, remainder_b}}, result) do
+  defp do_compose(
+         {{%{insert: _}, remainder_a}, {%{delete: _}, remainder_b}},
+         result
+       ) do
     {remainder_a, remainder_b}
     |> iterate()
     |> do_compose(result)
   end
 
-  defp do_compose({{%{delete: _} = del, remainder_a},
-                   {%{insert: _} = ins, remainder_b}}, result) do
+  defp do_compose(
+         {{%{delete: _} = del, remainder_a}, {%{insert: _} = ins, remainder_b}},
+         result
+       ) do
     {[del | remainder_a], remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, ins))
   end
 
-  defp do_compose({{%{delete: _} = del, remainder_a},
-                   {%{retain: _} = ret, remainder_b}}, result) do
+  defp do_compose(
+         {{%{delete: _} = del, remainder_a}, {%{retain: _} = ret, remainder_b}},
+         result
+       ) do
     {remainder_a, [ret | remainder_b]}
     |> iterate()
     |> do_compose(TextDelta.append(result, del))
   end
 
-  defp do_compose({{%{delete: _} = del_a, remainder_a},
-                   {%{delete: _} = del_b, remainder_b}}, result) do
+  defp do_compose(
+         {{%{delete: _} = del_a, remainder_a},
+          {%{delete: _} = del_b, remainder_b}},
+         result
+       ) do
     {remainder_a, [del_b | remainder_b]}
     |> iterate()
     |> do_compose(TextDelta.append(result, del_a))
   end
 
-  defp do_compose({{%{retain: _} = ret, remainder_a},
-                   {%{insert: _} = ins, remainder_b}}, result) do
+  defp do_compose(
+         {{%{retain: _} = ret, remainder_a}, {%{insert: _} = ins, remainder_b}},
+         result
+       ) do
     {[ret | remainder_a], remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, ins))
   end
 
-  defp do_compose({{%{retain: len} = ret_a, remainder_a},
-                   {%{retain: _} = ret_b, remainder_b}}, result) do
+  defp do_compose(
+         {{%{retain: len} = ret_a, remainder_a},
+          {%{retain: _} = ret_b, remainder_b}},
+         result
+       ) do
     retain = Operation.retain(len, compose_attributes(ret_a, ret_b, true))
+
     {remainder_a, remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, retain))
   end
 
-  defp do_compose({{%{retain: _}, remainder_a},
-                   {%{delete: _} = del, remainder_b}}, result) do
+  defp do_compose(
+         {{%{retain: _}, remainder_a}, {%{delete: _} = del, remainder_b}},
+         result
+       ) do
     {remainder_a, remainder_b}
     |> iterate()
     |> do_compose(TextDelta.append(result, del))

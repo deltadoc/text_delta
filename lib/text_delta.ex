@@ -48,13 +48,15 @@ defmodule TextDelta do
   [quill]: https://quilljs.com
   """
 
-  alias TextDelta.{Operation,
-                   Attributes,
-                   Composition,
-                   Transformation,
-                   Application,
-                   Document,
-                   Difference}
+  alias TextDelta.{
+    Operation,
+    Attributes,
+    Composition,
+    Transformation,
+    Application,
+    Document,
+    Difference
+  }
 
   defstruct ops: []
 
@@ -63,13 +65,13 @@ defmodule TextDelta do
   `t:TextDelta.Operation.insert/0`, or `t:TextDelta.Operation.delete/0`
   operations.
   """
-  @type t :: %TextDelta{ops: [Operation.t]}
+  @type t :: %TextDelta{ops: [Operation.t()]}
 
   @typedoc """
   A text state represented as delta. Any text state can be represented as a set
   of `t:TextDelta.Operation.insert/0` operations.
   """
-  @type state :: %TextDelta{ops: [Operation.insert]}
+  @type state :: %TextDelta{ops: [Operation.insert()]}
 
   @typedoc """
   Alias to `t:TextDelta.state/0`.
@@ -89,7 +91,7 @@ defmodule TextDelta do
       iex> TextDelta.new([TextDelta.Operation.insert("hello")])
       %TextDelta{ops: [%{insert: "hello"}]}
   """
-  @spec new([Operation.t]) :: t
+  @spec new([Operation.t()]) :: t
   def new(ops \\ [])
   def new([]), do: %TextDelta{}
   def new(ops), do: Enum.reduce(ops, new(), &append(&2, &1))
@@ -108,7 +110,7 @@ defmodule TextDelta do
       iex> TextDelta.insert(TextDelta.new(), "hello", %{bold: true})
       %TextDelta{ops: [%{insert: "hello", attributes: %{bold: true}}]}
   """
-  @spec insert(t, Operation.element, Attributes.t) :: t
+  @spec insert(t, Operation.element(), Attributes.t()) :: t
   def insert(delta, el, attrs \\ %{}) do
     append(delta, Operation.insert(el, attrs))
   end
@@ -127,7 +129,7 @@ defmodule TextDelta do
       iex> TextDelta.retain(TextDelta.new(), 5, %{italic: true})
       %TextDelta{ops: [%{retain: 5, attributes: %{italic: true}}]}
   """
-  @spec retain(t, non_neg_integer, Attributes.t) :: t
+  @spec retain(t, non_neg_integer, Attributes.t()) :: t
   def retain(delta, len, attrs \\ %{}) do
     append(delta, Operation.retain(len, attrs))
   end
@@ -166,7 +168,7 @@ defmodule TextDelta do
       iex> TextDelta.append(TextDelta.new(), operation)
       %TextDelta{ops: [%{insert: "hello"}]}
   """
-  @spec append(t, Operation.t) :: t
+  @spec append(t, Operation.t()) :: t
   def append(delta, op) do
     delta.ops
     |> Enum.reverse()
@@ -195,14 +197,17 @@ defmodule TextDelta do
   @spec trim(t) :: t
   def trim(delta)
   def trim(%TextDelta{ops: []} = empty), do: empty
+
   def trim(delta) do
     last_operation = List.last(delta.ops)
+
     case Operation.trimmable?(last_operation) do
       true ->
         delta.ops
         |> Enum.slice(0..-2)
         |> wrap()
         |> trim()
+
       false ->
         delta
     end
@@ -224,7 +229,7 @@ defmodule TextDelta do
       iex> TextDelta.length(TextDelta.new([%{insert: "hi"}]), [:retain])
       0
   """
-  @spec length(t, [Operation.type]) :: non_neg_integer
+  @spec length(t, [Operation.type()]) :: non_neg_integer
   def length(delta, op_types \\ [:insert, :retain, :delete]) do
     delta.ops
     |> Enum.filter(&(Operation.type(&1) in op_types))
@@ -240,7 +245,7 @@ defmodule TextDelta do
       iex> TextDelta.operations(TextDelta.new([%{delete: 5}, %{retain: 3}]))
       [%{delete: 5}, %{retain: 3}]
   """
-  @spec operations(t) :: [Operation.t]
+  @spec operations(t) :: [Operation.t()]
   def operations(delta), do: delta.ops
 
   defp compact(ops, %{insert: ""}), do: ops

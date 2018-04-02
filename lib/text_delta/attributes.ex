@@ -63,7 +63,7 @@ defmodule TextDelta.Attributes do
     |> remove_nils()
   end
 
- @doc """
+  @doc """
   Calculates and returns difference between two sets of attributes.
 
   Given an initial set of attributes and the final one, this function will

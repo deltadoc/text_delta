@@ -12,5 +12,6 @@ before_script:
   - mix eqc.install --mini || true
 
 script:
+  - mix format --check-formatted
   - mix test
   - mix credo --strict

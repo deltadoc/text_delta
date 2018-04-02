@@ -11,9 +11,9 @@ defmodule TextDelta.OperationTest do
 
     test "text with attributes" do
       assert Operation.insert("test", %{italic: true, font: "serif"}) == %{
-        insert: "test",
-        attributes: %{italic: true, font: "serif"}
-      }
+               insert: "test",
+               attributes: %{italic: true, font: "serif"}
+             }
     end
 
     test "embed" do
@@ -26,9 +26,9 @@ defmodule TextDelta.OperationTest do
 
     test "embed as a map with attributes" do
       assert Operation.insert(%{img: "me.png"}, %{alt: "My photo"}) == %{
-        insert: %{img: "me.png"},
-        attributes: %{alt: "My photo"}
-      }
+               insert: %{img: "me.png"},
+               attributes: %{alt: "My photo"}
+             }
     end
 
     test "with empty attributes" do
@@ -46,7 +46,10 @@ defmodule TextDelta.OperationTest do
     end
 
     test "length with attributes" do
-      assert Operation.retain(3, %{italic: true}) == %{retain: 3, attributes: %{italic: true}}
+      assert Operation.retain(3, %{italic: true}) == %{
+               retain: 3,
+               attributes: %{italic: true}
+             }
     end
 
     test "length with empty attributes" do
@@ -70,7 +73,8 @@ defmodule TextDelta.OperationTest do
     end
 
     test "of insert with attributes" do
-      assert Operation.type(%{insert: "test", attributes: %{bold: true}}) == :insert
+      assert Operation.type(%{insert: "test", attributes: %{bold: true}}) ==
+               :insert
     end
 
     test "of retain" do
@@ -78,7 +82,8 @@ defmodule TextDelta.OperationTest do
     end
 
     test "of retain with attributes" do
-      assert Operation.type(%{retain: 4, attributes: %{italic: true}}) == :retain
+      assert Operation.type(%{retain: 4, attributes: %{italic: true}}) ==
+               :retain
     end
 
     test "of delete" do
@@ -100,7 +105,10 @@ defmodule TextDelta.OperationTest do
     end
 
     test "of map embed insert with attributes" do
-      assert Operation.length(%{insert: %{tweet: "4412"}, attributes: %{bold: true}}) == 1
+      assert Operation.length(%{
+               insert: %{tweet: "4412"},
+               attributes: %{bold: true}
+             }) == 1
     end
 
     test "of retain" do
@@ -118,28 +126,38 @@ defmodule TextDelta.OperationTest do
 
   describe "compare" do
     test "greater insert with delete" do
-      assert Operation.compare(%{insert: "test", attributes: %{italic: true}}, %{delete: 2}) == :gt
+      assert Operation.compare(
+               %{insert: "test", attributes: %{italic: true}},
+               %{delete: 2}
+             ) == :gt
     end
 
     test "lesser retain with insert" do
-      assert Operation.compare(%{retain: 2, attributes: %{italic: true}}, %{insert: "tes"}) == :lt
+      assert Operation.compare(%{retain: 2, attributes: %{italic: true}}, %{
+               insert: "tes"
+             }) == :lt
     end
 
     test "equal delete and retain" do
-      assert Operation.compare(%{delete: 3}, %{retain: 3, attributes: %{bold: true}}) == :eq
+      assert Operation.compare(%{delete: 3}, %{
+               retain: 3,
+               attributes: %{bold: true}
+             }) == :eq
     end
   end
 
   describe "slice" do
     test "insert" do
-      assert Operation.slice(%{insert: "hello"}, 3) == {%{insert: "hel"}, %{insert: "lo"}}
+      assert Operation.slice(%{insert: "hello"}, 3) ==
+               {%{insert: "hel"}, %{insert: "lo"}}
     end
 
     test "insert with attributes" do
-      assert Operation.slice(%{insert: "hello", attributes: %{bold: true}}, 3) == {
-        %{insert: "hel", attributes: %{bold: true}},
-        %{insert: "lo", attributes: %{bold: true}}
-      }
+      assert Operation.slice(%{insert: "hello", attributes: %{bold: true}}, 3) ==
+               {
+                 %{insert: "hel", attributes: %{bold: true}},
+                 %{insert: "lo", attributes: %{bold: true}}
+               }
     end
 
     test "insert of numeric embed" do
@@ -148,9 +166,9 @@ defmodule TextDelta.OperationTest do
 
     test "insert of map embed" do
       assert Operation.slice(%{insert: %{img: "me.png"}}, 3) == {
-        %{insert: %{img: "me.png"}},
-        %{insert: ""}
-      }
+               %{insert: %{img: "me.png"}},
+               %{insert: ""}
+             }
     end
 
     test "retain" do
@@ -159,9 +177,9 @@ defmodule TextDelta.OperationTest do
 
     test "retain with attributes" do
       assert Operation.slice(%{retain: 5, attributes: %{italic: true}}, 3) == {
-        %{retain: 3, attributes: %{italic: true}},
-        %{retain: 2, attributes: %{italic: true}}
-      }
+               %{retain: 3, attributes: %{italic: true}},
+               %{retain: 2, attributes: %{italic: true}}
+             }
     end
 
     test "delete" do
@@ -171,25 +189,32 @@ defmodule TextDelta.OperationTest do
 
   describe "compact" do
     test "inserts" do
-      assert Operation.compact(%{insert: "hel"}, %{insert: "lo"}) == [%{insert: "hello"}]
+      assert Operation.compact(%{insert: "hel"}, %{insert: "lo"}) == [
+               %{insert: "hello"}
+             ]
     end
 
     test "inserts with attributes" do
-      assert Operation.compact(
-        %{insert: "hel", attributes: %{bold: true}},
-        %{insert: "lo", attributes: %{bold: true}}
-      ) == [%{insert: "hello", attributes: %{bold: true}}]
+      assert Operation.compact(%{insert: "hel", attributes: %{bold: true}}, %{
+               insert: "lo",
+               attributes: %{bold: true}
+             }) == [%{insert: "hello", attributes: %{bold: true}}]
     end
 
     test "inserts of numeric embeds" do
-      assert Operation.compact(%{insert: 1}, %{insert: 1}) == [%{insert: 1}, %{insert: 1}]
+      assert Operation.compact(%{insert: 1}, %{insert: 1}) == [
+               %{insert: 1},
+               %{insert: 1}
+             ]
     end
 
     test "inserts of map embeds" do
-      assert Operation.compact(%{insert: %{img: "me.png"}}, %{insert: %{img: "me.png"}}) == [
-        %{insert: %{img: "me.png"}},
-        %{insert: %{img: "me.png"}}
-      ]
+      assert Operation.compact(%{insert: %{img: "me.png"}}, %{
+               insert: %{img: "me.png"}
+             }) == [
+               %{insert: %{img: "me.png"}},
+               %{insert: %{img: "me.png"}}
+             ]
     end
 
     test "retains" do
@@ -197,10 +222,10 @@ defmodule TextDelta.OperationTest do
     end
 
     test "retains with attributes" do
-      assert Operation.compact(
-        %{retain: 3, attributes: %{italic: true}},
-        %{retain: 2, attributes: %{italic: true}}
-      ) == [%{retain: 5, attributes: %{italic: true}}]
+      assert Operation.compact(%{retain: 3, attributes: %{italic: true}}, %{
+               retain: 2,
+               attributes: %{italic: true}
+             }) == [%{retain: 5, attributes: %{italic: true}}]
     end
 
     test "deletes" do

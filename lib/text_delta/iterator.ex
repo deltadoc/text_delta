@@ -9,7 +9,7 @@ defmodule TextDelta.Iterator do
   @typedoc """
   Individual set of operations.
   """
-  @type set :: [Operation.t]
+  @type set :: [Operation.t()]
 
   @typedoc """
   Two sets of operations to iterate.
@@ -31,7 +31,7 @@ defmodule TextDelta.Iterator do
   @typedoc """
   A set's next scanned full or partial operation, and its resulting tail set.
   """
-  @type set_split :: {Operation.t | nil, set}
+  @type set_split :: {Operation.t() | nil, set}
 
   @doc """
   Generates next cycle by iterating over given sets of operations.

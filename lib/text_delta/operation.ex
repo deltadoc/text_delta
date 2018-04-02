@@ -29,8 +29,9 @@ defmodule TextDelta.Operation do
 
   Insert also allows us to attach attributes to the element being inserted.
   """
-  @type insert :: %{insert: element}
-                | %{insert: element, attributes: Attributes.t}
+  @type insert ::
+          %{insert: element}
+          | %{insert: element, attributes: Attributes.t()}
 
   @typedoc """
   Retain operation represents an intention to keep a sequence of characters
@@ -39,8 +40,9 @@ defmodule TextDelta.Operation do
   In addition to indicating preservation of existing text, retain also allows us
   to change formatting of retained text or element via optional attributes.
   """
-  @type retain :: %{retain: non_neg_integer}
-                | %{retain: non_neg_integer, attributes: Attributes.t}
+  @type retain ::
+          %{retain: non_neg_integer}
+          | %{retain: non_neg_integer, attributes: Attributes.t()}
 
   @typedoc """
   Delete operation represents an intention to delete a sequence of characters
@@ -66,7 +68,7 @@ defmodule TextDelta.Operation do
   @typedoc """
   An insertable rich text element. Either a piece of text, a number or an embed.
   """
-  @type element :: String.t | integer | map
+  @type element :: String.t() | integer | map
 
   @doc """
   Creates a new insert operation.
@@ -92,7 +94,7 @@ defmodule TextDelta.Operation do
       iex> TextDelta.Operation.insert(%{img: "me.png"}, %{alt: "My photo"})
       %{insert: %{img: "me.png"}, attributes: %{alt: "My photo"}}
   """
-  @spec insert(element, Attributes.t) :: insert
+  @spec insert(element, Attributes.t()) :: insert
   def insert(el, attrs \\ %{})
   def insert(el, nil), do: %{insert: el}
   def insert(el, attrs) when map_size(attrs) == 0, do: %{insert: el}
@@ -116,7 +118,7 @@ defmodule TextDelta.Operation do
       iex> TextDelta.Operation.retain(5, %{bold: true})
       %{retain: 5, attributes: %{bold: true}}
   """
-  @spec retain(non_neg_integer, Attributes.t) :: retain
+  @spec retain(non_neg_integer, Attributes.t()) :: retain
   def retain(len, attrs \\ %{})
   def retain(len, nil), do: %{retain: len}
   def retain(len, attrs) when map_size(attrs) == 0, do: %{retain: len}
@@ -194,6 +196,7 @@ defmodule TextDelta.Operation do
   def compare(op_a, op_b) do
     len_a = __MODULE__.length(op_a)
     len_b = __MODULE__.length(op_b)
+
     cond do
       len_a > len_b -> :gt
       len_a < len_b -> :lt
@@ -233,13 +236,11 @@ defmodule TextDelta.Operation do
   end
 
   def slice(%{retain: op_len} = op, idx) do
-    {Map.put(op, :retain, idx),
-     Map.put(op, :retain, op_len - idx)}
+    {Map.put(op, :retain, idx), Map.put(op, :retain, op_len - idx)}
   end
 
   def slice(%{delete: op_len} = op, idx) do
-    {Map.put(op, :delete, idx),
-     Map.put(op, :delete, op_len - idx)}
+    {Map.put(op, :delete, idx), Map.put(op, :delete, op_len - idx)}
   end
 
   @doc """
@@ -272,39 +273,39 @@ defmodule TextDelta.Operation do
   @spec compact(t, t) :: [t]
   def compact(op_a, op_b)
 
-  def compact(%{retain: len_a, attributes: attrs_a},
-              %{retain: len_b, attributes: attrs_b})
-              when attrs_a == attrs_b do
+  def compact(%{retain: len_a, attributes: attrs_a}, %{
+        retain: len_b,
+        attributes: attrs_b
+      })
+      when attrs_a == attrs_b do
     [retain(len_a + len_b, attrs_a)]
   end
 
-  def compact(%{retain: len_a} = a,
-              %{retain: len_b} = b)
-              when map_size(a) == 1 and map_size(b) == 1 do
+  def compact(%{retain: len_a} = a, %{retain: len_b} = b)
+      when map_size(a) == 1 and map_size(b) == 1 do
     [retain(len_a + len_b)]
   end
 
-  def compact(%{insert: el_a} = op_a,
-              %{insert: _} = op_b)
-              when not is_bitstring(el_a) do
+  def compact(%{insert: el_a} = op_a, %{insert: _} = op_b)
+      when not is_bitstring(el_a) do
     [op_a, op_b]
   end
 
-  def compact(%{insert: _} = op_a,
-              %{insert: el_b} = op_b)
-              when not is_bitstring(el_b) do
+  def compact(%{insert: _} = op_a, %{insert: el_b} = op_b)
+      when not is_bitstring(el_b) do
     [op_a, op_b]
   end
 
-  def compact(%{insert: str_a, attributes: attrs_a},
-              %{insert: str_b, attributes: attrs_b})
-              when attrs_a == attrs_b do
+  def compact(%{insert: str_a, attributes: attrs_a}, %{
+        insert: str_b,
+        attributes: attrs_b
+      })
+      when attrs_a == attrs_b do
     [insert(str_a <> str_b, attrs_a)]
   end
 
-  def compact(%{insert: str_a} = op_a,
-              %{insert: str_b} = op_b)
-              when map_size(op_a) == 1 and map_size(op_b) == 1 do
+  def compact(%{insert: str_a} = op_a, %{insert: str_b} = op_b)
+      when map_size(op_a) == 1 and map_size(op_b) == 1 do
     [insert(str_a <> str_b)]
   end
 

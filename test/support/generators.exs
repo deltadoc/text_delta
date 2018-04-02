@@ -26,7 +26,7 @@ defmodule TextDelta.Generators do
   end
 
   def operation do
-    oneof [insert(), retain(), delete()]
+    oneof([insert(), retain(), delete()])
   end
 
   def insert do
@@ -54,7 +54,7 @@ defmodule TextDelta.Generators do
   end
 
   def element do
-    oneof [string(), int(), map(string(), string())]
+    oneof([string(), int(), map(string(), string())])
   end
 
   def attributes do
@@ -64,11 +64,11 @@ defmodule TextDelta.Generators do
   end
 
   def attribute do
-    oneof [
+    oneof([
       {oneof([non_empty_string()]), oneof([non_empty_string(), bool(), int()])},
       {oneof([:font, :style]), non_empty_string()},
       {oneof([:bold, :italic]), bool()}
-    ]
+    ])
   end
 
   def text do
@@ -88,7 +88,7 @@ defmodule TextDelta.Generators do
   end
 
   def priority_side do
-    oneof [:left, :right]
+    oneof([:left, :right])
   end
 
   def text_length do

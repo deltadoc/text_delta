@@ -40,6 +40,7 @@ defmodule TextDelta.Delta do
 
   @doc false
   def append(nil, op), do: append(new(), op)
+
   def append(delta, op) do
     delta
     |> wrap()

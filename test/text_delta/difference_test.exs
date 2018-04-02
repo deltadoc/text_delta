@@ -9,7 +9,7 @@ defmodule TextDelta.DifferenceTest do
     forall document_a <- document() do
       forall document_b <- document() do
         diff = TextDelta.diff!(document_a, document_b)
-        ensure TextDelta.apply!(document_a, diff) == document_b
+        ensure(TextDelta.apply!(document_a, diff) == document_b)
       end
     end
   end
@@ -27,10 +27,12 @@ defmodule TextDelta.DifferenceTest do
     test "insert" do
       a = TextDelta.insert(TextDelta.new(), "A")
       b = TextDelta.insert(TextDelta.new(), "AB")
+
       delta =
         TextDelta.new()
         |> TextDelta.retain(1)
         |> TextDelta.insert("B")
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -38,10 +40,12 @@ defmodule TextDelta.DifferenceTest do
     test "delete" do
       a = TextDelta.insert(TextDelta.new(), "AB")
       b = TextDelta.insert(TextDelta.new(), "A")
+
       delta =
         TextDelta.new()
         |> TextDelta.retain(1)
         |> TextDelta.delete(1)
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -63,10 +67,16 @@ defmodule TextDelta.DifferenceTest do
     end
 
     test "object attributes" do
-      a = TextDelta.insert(TextDelta.new(), "A", %{
-        font: %{family: "Helvetica", size: "15px"}})
-      b = TextDelta.insert(TextDelta.new(), "A", %{
-        font: %{family: "Helvetica", size: "15px"}})
+      a =
+        TextDelta.insert(TextDelta.new(), "A", %{
+          font: %{family: "Helvetica", size: "15px"}
+        })
+
+      b =
+        TextDelta.insert(TextDelta.new(), "A", %{
+          font: %{family: "Helvetica", size: "15px"}
+        })
+
       delta = TextDelta.new()
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
@@ -83,10 +93,12 @@ defmodule TextDelta.DifferenceTest do
     test "embed integer mismatch" do
       a = TextDelta.insert(TextDelta.new(), 1)
       b = TextDelta.insert(TextDelta.new(), 2)
+
       delta =
         TextDelta.new()
         |> TextDelta.delete(1)
         |> TextDelta.insert(2)
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -100,14 +112,19 @@ defmodule TextDelta.DifferenceTest do
     end
 
     test "embed object mismatch" do
-      a = TextDelta.insert(TextDelta.new(), %{
-        image: "http://quilljs.com" , alt: 'Overwrite'})
-      b = TextDelta.insert(TextDelta.new(), %{
-        image: "http://quilljs.com"})
+      a =
+        TextDelta.insert(TextDelta.new(), %{
+          image: "http://quilljs.com",
+          alt: 'Overwrite'
+        })
+
+      b = TextDelta.insert(TextDelta.new(), %{image: "http://quilljs.com"})
+
       delta =
         TextDelta.new()
         |> TextDelta.insert(%{image: "http://quilljs.com"})
         |> TextDelta.delete(1)
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -115,10 +132,12 @@ defmodule TextDelta.DifferenceTest do
     test "embed false positive" do
       a = TextDelta.insert(TextDelta.new(), 1)
       b = TextDelta.insert(TextDelta.new(), List.to_string([0]))
+
       delta =
         TextDelta.new()
         |> TextDelta.insert(List.to_string([0]))
         |> TextDelta.delete(1)
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -128,14 +147,17 @@ defmodule TextDelta.DifferenceTest do
         TextDelta.new()
         |> TextDelta.insert("12", %{bold: true})
         |> TextDelta.insert("34", %{italic: true})
+
       b =
         TextDelta.new()
         |> TextDelta.insert("123", %{color: "red"})
+
       delta =
         TextDelta.new()
         |> TextDelta.retain(2, %{bold: nil, color: "red"})
         |> TextDelta.retain(1, %{italic: nil, color: "red"})
         |> TextDelta.delete(1)
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
     end
@@ -145,10 +167,12 @@ defmodule TextDelta.DifferenceTest do
         TextDelta.new()
         |> TextDelta.insert("Bad", %{"color" => "red"})
         |> TextDelta.insert("cat", %{"color" => "blue"})
+
       b =
         TextDelta.new()
         |> TextDelta.insert("Good", %{"bold" => true})
         |> TextDelta.insert("dog", %{"italic" => true})
+
       delta =
         TextDelta.new()
         |> TextDelta.insert("Goo", %{"bold" => true})
@@ -156,6 +180,7 @@ defmodule TextDelta.DifferenceTest do
         |> TextDelta.retain(1, %{"bold" => true, "color" => nil})
         |> TextDelta.delete(3)
         |> TextDelta.insert("dog", %{"italic" => true})
+
       assert {:ok, result} = TextDelta.diff(a, b)
       assert result == delta
       assert TextDelta.apply!(a, delta) == b
@@ -166,6 +191,7 @@ defmodule TextDelta.DifferenceTest do
         TextDelta.new()
         |> TextDelta.insert("A")
         |> TextDelta.insert("B", %{"bold" => true})
+
       delta = TextDelta.new()
       assert {:ok, result} = TextDelta.diff(a, a)
       assert result == delta
@@ -177,6 +203,7 @@ defmodule TextDelta.DifferenceTest do
       delta =
         TextDelta.new()
         |> TextDelta.insert("hi")
+
       assert TextDelta.diff!(delta, delta) == TextDelta.new()
     end
 
@@ -184,6 +211,7 @@ defmodule TextDelta.DifferenceTest do
       delta =
         TextDelta.new()
         |> TextDelta.retain(5)
+
       assert_raise RuntimeError, fn ->
         TextDelta.diff!(delta, delta)
       end
