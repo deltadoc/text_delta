@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2018-06-09
+### Added
+  - Introduced experimental support for disabling unicode support through
+    `:text_delta.support_unicode` config. This is useful, because disabling
+    grapheme handling drastically speeds up all string operations (used heavily).
+    If you implementation does not need support of unicode, using this config
+    can greatly improve performance of the library.
+
+### Fixed
+  - Small performance optimisations by avoiding unnecessary `String.length`
+    calls
+
 ## [1.3.0] - 2017-12-29
 ### Added
   - `&TextDelta.lines/1` and `&TextDelta.lines!/1`
@@ -61,7 +73,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Attributes support in `insert` and `retain`
   - Delta composition and transformation with attributes supported
 
-[Unreleased]: https://github.com/everzet/text_delta/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/everzet/text_delta/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/everzet/text_delta/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/everzet/text_delta/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/everzet/text_delta/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/everzet/text_delta/compare/v1.0.2...v1.1.0

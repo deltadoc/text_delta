@@ -20,7 +20,7 @@ defmodule TextDelta.Operation do
   [ot]: https://en.wikipedia.org/wiki/Operational_transformation
   """
 
-  alias TextDelta.Attributes
+  alias TextDelta.{Attributes, ConfigurableString}
 
   @typedoc """
   Insert operation represents an intention to add a text or an embedded element
@@ -180,7 +180,7 @@ defmodule TextDelta.Operation do
   @spec length(t) :: non_neg_integer
   def length(op)
   def length(%{insert: el}) when not is_bitstring(el), do: 1
-  def length(%{insert: str}), do: String.length(str)
+  def length(%{insert: str}), do: ConfigurableString.length(str)
   def length(%{retain: len}), do: len
   def length(%{delete: len}), do: len
 
@@ -227,8 +227,8 @@ defmodule TextDelta.Operation do
   def slice(op, idx)
 
   def slice(%{insert: str} = op, idx) when is_bitstring(str) do
-    {Map.put(op, :insert, String.slice(str, 0, idx)),
-     Map.put(op, :insert, String.slice(str, idx..-1))}
+    {part_one, part_two} = ConfigurableString.split_at(str, idx)
+    {Map.put(op, :insert, part_one), Map.put(op, :insert, part_two)}
   end
 
   def slice(%{insert: _} = op, _) do

@@ -6,7 +6,7 @@ defmodule TextDelta.Difference do
   will result in B.
   """
 
-  alias TextDelta.{Operation, Attributes}
+  alias TextDelta.{Operation, Attributes, ConfigurableString}
 
   @typedoc """
   Reason for an error.
@@ -103,20 +103,20 @@ defmodule TextDelta.Difference do
   end
 
   defp mdiff_to_delta([{type, str} | rest], fst, snd, delta) do
-    str_len = String.length(str)
+    str_len = ConfigurableString.length(str)
 
     case type do
       :ins ->
         {op, new_snd} = next_op_no_longer_than(snd, str_len)
         op_len = Operation.length(op)
-        {_, substr} = String.split_at(str, op_len)
+        {_, substr} = ConfigurableString.split_at(str, op_len)
         new_delta = TextDelta.append(delta, op)
         mdiff_to_delta([{:ins, substr} | rest], fst, new_snd, new_delta)
 
       :del ->
         {op, new_fst} = next_op_no_longer_than(fst, str_len)
         op_len = Operation.length(op)
-        {_, substr} = String.split_at(str, op_len)
+        {_, substr} = ConfigurableString.split_at(str, op_len)
         new_delta = TextDelta.append(delta, Operation.delete(op_len))
         mdiff_to_delta([{:del, substr} | rest], new_fst, snd, new_delta)
 
@@ -125,7 +125,7 @@ defmodule TextDelta.Difference do
           next_op_no_longer_than(fst, snd, str_len)
 
         op_len = Operation.length(op1)
-        {_, substr} = String.split_at(str, op_len)
+        {_, substr} = ConfigurableString.split_at(str, op_len)
 
         if op1.insert == op2.insert do
           attrs =
