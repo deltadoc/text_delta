@@ -52,22 +52,28 @@ defmodule TextDelta.Iterator do
   end
 
   def next({[head_a | _], [head_b | _]} = sets, skip_type) do
-    comparison = Operation.compare(head_a, head_b)
     skip = Operation.type(head_a) == skip_type
-    do_next(sets, comparison, skip)
+    len_a = Operation.length(head_a)
+    len_b = Operation.length(head_b)
+
+    cond do
+      len_a > len_b -> do_next(sets, :gt, len_b, skip)
+      len_a < len_b -> do_next(sets, :lt, len_a, skip)
+      true -> do_next(sets, :eq, 0, skip)
+    end
   end
 
-  defp do_next({[head_a | tail_a], [head_b | tail_b]}, :gt, false) do
-    {head_a, remainder_a} = Operation.slice(head_a, Operation.length(head_b))
+  defp do_next({[head_a | tail_a], [head_b | tail_b]}, :gt, len, false) do
+    {head_a, remainder_a} = Operation.slice(head_a, len)
     {{head_a, [remainder_a | tail_a]}, {head_b, tail_b}}
   end
 
-  defp do_next({[head_a | tail_a], [head_b | tail_b]}, :lt, _) do
-    {head_b, remainder_b} = Operation.slice(head_b, Operation.length(head_a))
+  defp do_next({[head_a | tail_a], [head_b | tail_b]}, :lt, len, _) do
+    {head_b, remainder_b} = Operation.slice(head_b, len)
     {{head_a, tail_a}, {head_b, [remainder_b | tail_b]}}
   end
 
-  defp do_next({[head_a | tail_a], [head_b | tail_b]}, _, _) do
+  defp do_next({[head_a | tail_a], [head_b | tail_b]}, _, _, _) do
     {{head_a, tail_a}, {head_b, tail_b}}
   end
 end
